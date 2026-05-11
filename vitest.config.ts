@@ -19,6 +19,8 @@ export default defineConfig({
         "lib/normalize-record.ts",
         "lib/csv-parser.ts",
         "lib/conflict-scorer.ts",
+        "lib/pattern-library.ts",
+        "lib/claude.ts",
       ],
       exclude: ["lib/**/*.test.ts", "lib/test-utils/**"],
       thresholds: {

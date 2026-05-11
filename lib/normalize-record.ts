@@ -11,10 +11,12 @@ export interface NormalizedRecord {
   source_row_index: number;
   company_name_raw: string;
   company_name_normalized: string;
+  amount_raw: string | null;
   amount_cents: number | null;
   currency: string;
   email: string | null;
   status: string | null;
+  date_raw: string | null;
   date: Date | null;
   raw: Record<string, string>;
 }
@@ -53,10 +55,12 @@ export function normalizeRecord(
     source_row_index: raw.source_row_index,
     company_name_raw: companyRaw,
     company_name_normalized: normalizeCompanyName(companyRaw),
+    amount_raw: amountField ?? null,
     amount_cents,
     currency,
     email: normalizeEmail(emailField),
     status: statusField ? statusField.trim() : null,
+    date_raw: dateField,
     date: normalizeDate(dateField),
     raw: raw.raw,
   };

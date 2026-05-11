@@ -86,10 +86,12 @@ describe("scoreMatch (composite)", () => {
       source_row_index: 0,
       company_name_raw: "Acme",
       company_name_normalized: "acme",
+      amount_raw: "10000",
       amount_cents: 10000,
       currency: "USD",
       email: "x@y.com",
       status: null,
+      date_raw: "2026-01-01",
       date: new Date("2026-01-01T00:00:00Z"),
       raw: {},
     };
