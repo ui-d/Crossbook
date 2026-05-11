@@ -93,9 +93,7 @@ const responseSchema = z.object({
   results: z.array(resultSchema),
 });
 
-export type Conflict = z.infer<typeof conflictSchema> & {
-  pattern_matched: string | null;
-};
+export type Conflict = z.infer<typeof conflictSchema>;
 export type AnalysisResult = z.infer<typeof resultSchema>;
 
 export interface ClaudePairInput {
@@ -115,6 +113,14 @@ interface SerializedRecord {
   date: string | null;
 }
 
+function formatDateForClaude(date: Date | null): string | null {
+  if (!date) return null;
+  const yyyy = date.getFullYear().toString().padStart(4, "0");
+  const mm = (date.getMonth() + 1).toString().padStart(2, "0");
+  const dd = date.getDate().toString().padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 function serialize(record: NormalizedRecord | null): SerializedRecord | null {
   if (!record) return null;
   return {
@@ -124,7 +130,7 @@ function serialize(record: NormalizedRecord | null): SerializedRecord | null {
     currency: record.currency,
     email: record.email,
     status: record.status,
-    date: record.date ? record.date.toISOString() : null,
+    date: formatDateForClaude(record.date),
   };
 }
 

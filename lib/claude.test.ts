@@ -80,7 +80,7 @@ describe("buildBatch", () => {
     expect(out[0].pair_index).toBe(0);
     expect(out[0].hubspot_record?.company_name).toBe("Acme");
     expect(out[0].hubspot_record?.amount_cents).toBe(1000000);
-    expect(out[0].hubspot_record?.date).toBe("2026-01-01T00:00:00.000Z");
+    expect(out[0].hubspot_record?.date).toBe("2026-01-01");
   });
 
   it("skips pairs handled by pattern library", () => {
