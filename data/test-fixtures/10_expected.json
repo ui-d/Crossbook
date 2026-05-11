@@ -1,0 +1,14 @@
+{
+  "case_id": "10_currency_real_mismatch_gbp_vs_usd",
+  "description": "UK company. HubSpot booked GBP, QBO booked USD at same numeric amount. Genuine CURRENCY conflict; HIGH priority because actual revenue impact (~$5K depending on FX).",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.85,
+      "expected_conflict_types": ["CURRENCY", "EMAIL"]
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

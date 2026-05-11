@@ -1,0 +1,118 @@
+[
+  {
+    "pattern_key": "qbo_invoice_70pct_of_hubspot_deal",
+    "pattern_name": "Likely 30% partial payment scenario",
+    "detection_signature": {
+      "kind": "amount_ratio",
+      "ratio_min": 0.65,
+      "ratio_max": 0.75,
+      "requires_match": true
+    },
+    "explanation_template": "HubSpot shows deal closed at {hubspot_amount} but QuickBooks invoice is {qbo_amount} ({pct}% of deal). This usually indicates a 30% deposit or partial payment recorded.",
+    "recommended_action": "MANUAL_REVIEW",
+    "confidence_floor": 0.65
+  },
+  {
+    "pattern_key": "closed_won_no_qbo_invoice",
+    "pattern_name": "Closed-Won deal with no QuickBooks invoice",
+    "detection_signature": {
+      "kind": "orphan_hubspot",
+      "hubspot_stage_eq": "Closed Won"
+    },
+    "explanation_template": "Deal '{deal_name}' closed in HubSpot on {close_date} for {amount} but no matching QuickBooks invoice was found. Common billing miss pattern.",
+    "recommended_action": "MANUAL_REVIEW",
+    "confidence_floor": 0.7
+  },
+  {
+    "pattern_key": "name_legal_suffix_only",
+    "pattern_name": "Same entity, different legal suffix",
+    "detection_signature": {
+      "kind": "name_normalized_match",
+      "min_name_score": 0.95,
+      "requires_email_match": true
+    },
+    "explanation_template": "'{hubspot_name}' and '{qbo_name}' appear to be the same company — only the legal-entity suffix differs.",
+    "recommended_action": "TRUST_HUBSPOT",
+    "confidence_floor": 0.9
+  },
+  {
+    "pattern_key": "currency_symbol_vs_code_mismatch",
+    "pattern_name": "Currency format inconsistency",
+    "detection_signature": {
+      "kind": "amount_match_currency_format_diff",
+      "min_amount_score": 0.99
+    },
+    "explanation_template": "Amounts match but currency is recorded differently: '{hubspot_currency}' vs '{qbo_currency}'. No actual conflict — formatting only.",
+    "recommended_action": "IGNORE",
+    "confidence_floor": 0.85
+  },
+  {
+    "pattern_key": "polish_nip_in_qbo_missing_in_hubspot",
+    "pattern_name": "Polish NIP in QBO, missing in HubSpot",
+    "detection_signature": {
+      "kind": "tax_id_qbo_only",
+      "tax_id_regex": "^PL?\\d{10}$"
+    },
+    "explanation_template": "QuickBooks has a Polish NIP ({nip}) for this customer; HubSpot does not. Adding the NIP to HubSpot will improve future EU invoice matching.",
+    "recommended_action": "TRUST_QUICKBOOKS",
+    "confidence_floor": 0.7
+  },
+  {
+    "pattern_key": "multi_invoice_payment_aggregation",
+    "pattern_name": "Multiple QBO invoices for one HubSpot deal",
+    "detection_signature": {
+      "kind": "multi_qbo_match_amount_sum",
+      "min_invoice_count": 2,
+      "sum_within_pct": 0.02
+    },
+    "explanation_template": "HubSpot deal {deal_name} ({hubspot_amount}) appears split across {invoice_count} QuickBooks invoices summing to {qbo_total}. Common for milestone billing or multi-product deals.",
+    "recommended_action": "MANUAL_REVIEW",
+    "confidence_floor": 0.6
+  },
+  {
+    "pattern_key": "qb_subcustomer_notation",
+    "pattern_name": "QuickBooks sub-customer notation (Parent:Child)",
+    "detection_signature": {
+      "kind": "qbo_name_contains",
+      "delimiter": ":"
+    },
+    "explanation_template": "QuickBooks customer is recorded as a sub-customer ('{qbo_name}'). HubSpot stores the parent or child name only. Likely the same legal entity.",
+    "recommended_action": "TRUST_HUBSPOT",
+    "confidence_floor": 0.7
+  },
+  {
+    "pattern_key": "date_format_only_mismatch",
+    "pattern_name": "Date appears different but resolves identically",
+    "detection_signature": {
+      "kind": "date_score_full_credit",
+      "raw_strings_differ": true
+    },
+    "explanation_template": "Dates are written differently ('{hubspot_date}' vs '{qbo_date}') but both resolve to {iso_date}. Format-only — no conflict.",
+    "recommended_action": "IGNORE",
+    "confidence_floor": 0.9
+  },
+  {
+    "pattern_key": "stage_closed_won_status_open",
+    "pattern_name": "HubSpot Closed-Won but QBO invoice still Open",
+    "detection_signature": {
+      "kind": "status_mismatch",
+      "hubspot_stage_eq": "Closed Won",
+      "qbo_status_in": ["Open", "Pending", "Sent"]
+    },
+    "explanation_template": "HubSpot reports the deal Closed-Won but the QuickBooks invoice is still {qbo_status}. Cash hasn't landed; flag for AR follow-up.",
+    "recommended_action": "MANUAL_REVIEW",
+    "confidence_floor": 0.75
+  },
+  {
+    "pattern_key": "contact_without_company_in_hubspot",
+    "pattern_name": "HubSpot contact has no associated company",
+    "detection_signature": {
+      "kind": "missing_field",
+      "field": "company",
+      "side": "HUBSPOT"
+    },
+    "explanation_template": "HubSpot deal '{deal_name}' has a contact ({email}) but no associated company. QuickBooks customer is '{qbo_name}'. Hard to fuzzy-match without the company field.",
+    "recommended_action": "MANUAL_REVIEW",
+    "confidence_floor": 0.5
+  }
+]

@@ -1,108 +1,196 @@
 # Reconcile
 
-A Next.js 15 SaaS scaffold for CSV reconciliation — ingest two data sources, fuzzy-match records, and surface mismatches with an LLM-assisted review flow.
+CSV-in / plain-English-out **HubSpot ↔ QuickBooks reconciliation** for SMB RevOps teams. Drop two CSV exports — Claude finds conflicts, duplicates, missing invoices, and amount mismatches, cites the exact row in both files, and never auto-merges. $49/month vs. HubSpot Data Hub Professional at $720/seat/month.
 
-> **Status:** Early scaffolding. Auth, billing, data, and UI primitives are wired; the reconcile pipeline under `app/api/reconcile/` is the next surface to build out. The home page and Navbar still carry placeholder "Recipe Emporium" copy from the starter template.
+> **Status:** Phase 1 complete (foundation + normalization). Phase 2 (AI layer) in progress. See [`CLAUDE.md`](./CLAUDE.md) for the full 21-day build brief, GO/NO-GO criteria, and product positioning.
+
+---
+
+## What's here today
+
+| Surface | State |
+|---|---|
+| CSV upload UI (`/upload`) | ✅ Drag-drop, email, 30-day retention notice, 5 MB / 4000-row guards |
+| HubSpot + QuickBooks column detection (`lib/csv-parser.ts`) | ✅ Case-insensitive lookup across 30+ known header variants |
+| Field normalizers (`lib/normalizers.ts`) | ✅ Company name (EN/PL/DE/FR/Nordics legal suffixes), diacritics (Polish ł, German ß), currency (US/EU formats + ISO codes), 7 date formats, email |
+| Fuzzy match scorer (`lib/conflict-scorer.ts`) | ✅ Weighted 40% name / 30% email / 20% amount / 10% date, orphan detection, 0.5 threshold |
+| Test fixtures (`data/test-fixtures/`) | ✅ 10 hand-labeled CSV pairs — 5 EN, 3 Polish, 2 multi-currency |
+| Supabase schema (`supabase/migrations/0001_init.sql`) | ✅ 7 tables, RLS keyed off Clerk JWT, 10 seeded `discrepancy_patterns` |
+| Stripe checkout + webhook | ✅ `$49/mo` price live, webhook handler with signature verification, test/live key auto-switch by `NODE_ENV` |
+| Clerk + Supabase JWT bridge (`lib/supabase.ts`) | ✅ Third-party-auth pattern |
+| Claude-driven conflict analysis | 🚧 Phase 2, Day 8 |
+| Report UI (conflict table, bulk actions, filters) | 🚧 Phase 3 |
+| Monthly delta retention loop | 🚧 Phase 4 |
+| Privacy / GDPR endpoints | 🚧 Phase 4, Day 17 |
+
+**Tests:** 85/85 passing — `pnpm test:coverage` at 97.35% lines, 85.52% branches across `lib/`.
+
+---
 
 ## Tech stack
 
-- **Framework:** Next.js 15 (App Router, Turbopack) + React 19 + TypeScript (strict)
-- **Auth:** [Clerk](https://clerk.com) — `clerkMiddleware()` wraps the entire app; custom sign-in at `/sign-in`
-- **Database:** [Supabase](https://supabase.com) via Clerk-issued JWTs (third-party auth integration)
-- **Billing:** Clerk `<PricingTable />` on `/subscription` (Stripe SDK also installed)
-- **UI:** [shadcn/ui](https://ui.shadcn.com) (new-york style, neutral base) + Tailwind CSS v4 + lucide-react
-- **AI:** Vercel AI SDK + `@ai-sdk/anthropic`
-- **Forms:** react-hook-form + zod
-- **CSV / matching:** papaparse + fuse.js
-- **Email:** Resend
-- **Tests:** Vitest + @vitest/coverage-v8 *(scripts not yet wired)*
+- **Framework:** Next.js 15 (App Router, Turbopack) + React 19 + TypeScript strict
+- **Auth:** Clerk (Google OAuth in v1); `middleware.ts` wraps every route
+- **Data:** Supabase Postgres with RLS keyed off `auth.jwt() ->> 'sub'` (Clerk-issued)
+- **Payments:** Stripe (`$49/month` subscription, monthly only); test/live keys auto-resolved
+- **AI:** `@anthropic-ai/sdk` with `claude-sonnet-4-6` + `cache_control: ephemeral` on system prompt
+- **CSV / matching:** Papa Parse + Fuse.js + custom Levenshtein layer; currency.js + date-fns for parsing
+- **UI:** shadcn/ui (new-york / neutral) + Tailwind v4 + lucide-react
+- **Email:** Resend (transactional + monthly digest cron)
+- **Tests:** Vitest 4 + v8 coverage (≥80% threshold)
+- **Deployment:** Vercel
 
-## Getting started
+**Package manager:** pnpm only. `package-lock.json` is intentionally absent.
 
-### Prerequisites
+---
 
-- Node.js 20+
-- A Clerk application (publishable + secret keys)
-- A Supabase project (URL + anon key)
-- Optional: Stripe, Resend, Anthropic API keys for downstream features
+## Quick start
 
-### Install
-
-Pick **one** package manager — both `package-lock.json` and `pnpm-lock.yaml` are checked in. Delete the lockfile you are not using before installing.
+### 1. Install
 
 ```bash
-npm install
-# or
 pnpm install
 ```
 
-### Environment variables
+### 2. Environment variables
 
-Create `.env.local` at the repo root:
+Copy `.env.example` → `.env.local` and fill in:
 
 ```bash
-# Supabase (consumed in lib/supabase.ts)
-NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
-
-# Clerk (auto-detected by @clerk/nextjs)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
-CLERK_SECRET_KEY=sk_test_...
-
-# Optional integrations
-ANTHROPIC_API_KEY=
-STRIPE_SECRET_KEY=
-RESEND_API_KEY=
-
-# MCP servers (.mcp.json — only needed if using MCP tooling)
-SUPABASE_ACCESS_TOKEN=
-GITHUB_PERSONAL_ACCESS_TOKEN=
+cp .env.example .env.local
 ```
+
+Required keys (in roughly this order):
+
+| Key | Where to get it |
+|---|---|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` / `CLERK_SECRET_KEY` | https://dashboard.clerk.com |
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` | Supabase project → Settings → API |
+| `ANTHROPIC_API_KEY` | https://console.anthropic.com |
+| `STRIPE_SECRET_KEY` / `STRIPE_SECRET_KEY_TEST` / `STRIPE_WEBHOOK_SECRET` / `STRIPE_PRICE_ID_MONTHLY` | Stripe dashboard + `stripe listen` |
+| `RESEND_API_KEY` | https://resend.com |
 
 `.env*` is gitignored.
 
-### Run
+### 3. Supabase
+
+Run the migration once against a fresh Supabase project:
 
 ```bash
-npm run dev      # Next.js dev server with Turbopack
-npm run build    # Production build
-npm run start    # Run built app
-npm run lint     # ESLint via next lint
+# via supabase CLI
+supabase db push
+
+# or via the Supabase MCP server in your editor:
+mcp__supabase__apply_migration --name 0001_init --query "$(cat supabase/migrations/0001_init.sql)"
 ```
 
-App runs on http://localhost:3000.
+Seed the pattern library:
+
+```bash
+# 10 patterns are baked into data/pattern-library.json; insert via psql or MCP execute_sql
+```
+
+### 4. Stripe (local webhook testing)
+
+```bash
+brew install stripe/stripe-cli/stripe
+stripe login
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+# Copy the printed whsec_... into STRIPE_WEBHOOK_SECRET_TEST in .env.local
+```
+
+### 5. Run
+
+```bash
+pnpm dev          # Next.js + Turbopack
+pnpm test         # Vitest one-shot
+pnpm test:watch   # Vitest watch
+pnpm test:coverage # Vitest + v8 coverage report (HTML in coverage/)
+pnpm build        # Production build
+pnpm lint         # ESLint
+```
+
+App runs at http://localhost:3000. Upload page at `/upload`.
+
+---
 
 ## Project layout
 
 ```
 app/
-  (auth)/sign-in/[[...sign-in]]/    # Clerk custom sign-in (route group)
-  api/reconcile/                    # Reconcile API routes (planned)
-  subscription/                     # Clerk PricingTable
-  layout.tsx                        # ClerkProvider wrapper
-  page.tsx                          # Home (placeholder copy)
+  (auth)/sign-in/[[...sign-in]]/   Clerk custom sign-in
+  api/
+    webhooks/stripe/route.ts       Subscription webhook (signature-verified)
+  subscription/page.tsx            Clerk PricingTable
+  upload/page.tsx                  Canonical CSV upload entry
+  layout.tsx                       ClerkProvider wrapper
+  page.tsx                         Marketing landing (real copy lands Phase 5)
 components/
-  Navbar.tsx                        # App-level components
-  ui/                               # shadcn/ui primitives
+  UploadZone.tsx                   Drag-drop, email, retention notice
+  ui/                              shadcn/ui primitives
 lib/
-  supabase.ts                       # createSupabaseClient() — Clerk JWT integration
-  utils.ts                          # cn() — clsx + tailwind-merge
-supabase/migrations/                # SQL migrations (empty)
-data/test-fixtures/                 # CSV fixtures for the reconcile feature (empty)
-middleware.ts                       # clerkMiddleware()
+  supabase.ts                      Clerk-JWT third-party-auth client
+  stripe.ts                        Stripe SDK init (test/live key auto-switch)
+  payments.ts                      createCheckoutSession() server action
+  csv-parser.ts                    Papa Parse + column detection
+  normalizers.ts                   Field-level normalizers (pure)
+  normalize-record.ts              Composes RawRecord + ColumnMap -> NormalizedRecord
+  conflict-scorer.ts               Weighted fuzzy match + orphan detection
+  test-utils/fixtures.ts           Fixture loader for tests
+  utils.ts                         cn() helper
+data/
+  pattern-library.json             10 seeded discrepancy patterns (the moat)
+  test-fixtures/                   10 CSV pairs + expected.json (5 EN / 3 PL / 2 multi-curr)
+supabase/
+  migrations/0001_init.sql         Schema + RLS
+middleware.ts                      clerkMiddleware()
+vitest.config.ts                   v8 coverage, 80% threshold, scoped to lib/
 ```
 
-Path alias `@/*` resolves to the repo root.
+Path alias: `@/*` resolves to the repo root.
 
-## Architecture notes
+---
 
-- **Clerk + Supabase:** `lib/supabase.ts` constructs a Supabase client whose `accessToken` callback returns a Clerk-issued JWT via `(await auth()).getToken()`. Always call the factory inside a server context (route handlers, server components, server actions). RLS policies should be authored against Clerk JWT claims, not Supabase's native auth.
-- **shadcn/ui:** Use the CLI to add components so the aliases (`@/components/ui`, `@/lib`) stay consistent with `components.json`. Compose classes with `cn()` from `lib/utils.ts`.
-- **Remote images:** `next.config.ts` allows `img.clerk.com`. Add new hostnames there if referencing other external images.
+## Architecture
+
+The reconcile pipeline runs as:
+
+```
+CSV upload
+   ↓
+csv-parser.ts          column detection (HubSpot vs QuickBooks dictionaries)
+   ↓
+normalize-record.ts    raw row -> NormalizedRecord (uses normalizers.ts)
+   ↓
+conflict-scorer.ts     weighted fuzzy match → MatchPair[] (matches + orphans)
+   ↓
+pattern-library        deterministic rules first (cheap, no Claude call)
+   ↓
+claude (Phase 2)       only for pairs that miss every pattern
+   ↓
+result_json (Supabase)
+   ↓
+delta-engine (Phase 4) diff against prior_report_id for the monthly digest
+```
+
+The four core rules of the AI layer (governed in code, not in the system prompt alone):
+
+1. **Never auto-merge.** Every action requires a human click. (DELEGATE-52 mitigation.)
+2. **Always cite source rows.** Every claim includes `source_row_index` from both CSVs.
+3. **Pattern library first.** Known patterns explain via template, no API call.
+4. **Confidence-based fallback.** If Claude's confidence < 0.65, downgrade to `MANUAL_REVIEW`.
+
+See [`CLAUDE.md`](./CLAUDE.md) for the full spec: paywall mechanics, monthly delta retention loop, privacy/GDPR posture, landing-page copy, distribution channels, and 21-day build order.
+
+---
 
 ## MCP servers
 
-`.mcp.json` configures Supabase, Context7, and GitHub MCP servers. Tokens are read from environment variables — no secrets are committed.
+`.mcp.json` configures Supabase, Context7, and GitHub MCP servers. Tokens (`SUPABASE_ACCESS_TOKEN`, `GITHUB_PERSONAL_ACCESS_TOKEN`) are read from `.env.local` — no secrets are committed.
+
+Used during build to apply migrations, seed the pattern library, and create Stripe products/prices.
+
+---
 
 ## License
 

@@ -1,0 +1,14 @@
+{
+  "case_id": "06_polish_nip_in_qbo_only",
+  "description": "Polish company. HubSpot lacks NIP (tax ID); QBO has it. Pattern: polish_nip_in_qbo_missing_in_hubspot → TRUST_QUICKBOOKS, suggest copy NIP back to HubSpot.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.95,
+      "expected_conflict_types": []
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

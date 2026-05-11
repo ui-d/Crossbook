@@ -1,0 +1,14 @@
+{
+  "case_id": "07_diacritic_match",
+  "description": "Polish company. HubSpot has diacritics (Żółw), QBO does not (Zolw). Both close to 12000000 cents PLN. Date in HubSpot is dd.MM.yyyy. After normalization names match identically.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.9,
+      "expected_conflict_types": []
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

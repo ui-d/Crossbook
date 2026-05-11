@@ -1,0 +1,14 @@
+{
+  "case_id": "04_thirty_percent_partial_payment",
+  "description": "Same entity, but QBO shows 30% deposit ($15K of $50K deal). Should match qbo_invoice_70pct_of_hubspot_deal pattern (ratio in [0.65, 0.75] is 0.30, this is the inverse — covered by partial-payment heuristic).",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.6,
+      "expected_conflict_types": ["AMOUNT", "EMAIL"]
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

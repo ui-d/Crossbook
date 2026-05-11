@@ -1,0 +1,14 @@
+{
+  "case_id": "08_polish_date_format",
+  "description": "Polish dd.MM.yyyy in HubSpot vs ISO yyyy-MM-dd in QBO. Date normalization yields same Date instance for 2026-04-15. Names match after legal-suffix strip ('allegro').",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.95,
+      "expected_conflict_types": []
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

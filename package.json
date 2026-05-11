@@ -1,12 +1,15 @@
 {
-  "name": "saas-mini-course",
+  "name": "reconcile",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.76",
@@ -22,6 +25,9 @@
     "ai": "^6.0.177",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "currency.js": "^2.0.4",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "fuse.js": "^7.3.0",
     "lucide-react": "^0.511.0",
     "next": "15.4.1",

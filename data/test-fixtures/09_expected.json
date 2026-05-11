@@ -1,0 +1,14 @@
+{
+  "case_id": "09_currency_real_mismatch_eur_vs_usd",
+  "description": "Same German company, but HubSpot booked in EUR and QBO billed in USD at the same numeric amount. Real CURRENCY conflict — never auto-convert; flag MANUAL_REVIEW.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.85,
+      "expected_conflict_types": ["CURRENCY", "EMAIL"]
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

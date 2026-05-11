@@ -1,0 +1,14 @@
+{
+  "case_id": "02_legal_suffix_only",
+  "description": "Same entity. HubSpot uses 'Corporation', QBO uses 'Inc'. After name normalization both become 'globex'. Expect TRUST_HUBSPOT recommendation via name_legal_suffix_only pattern.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.9,
+      "expected_conflict_types": []
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

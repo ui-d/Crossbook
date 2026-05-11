@@ -1,0 +1,14 @@
+{
+  "case_id": "05_currency_format_only",
+  "description": "Same entity. HubSpot uses '$10,000.00', QBO uses 'USD 10000'. After currency normalization both yield 1000000 cents USD. Pattern: currency_symbol_vs_code_mismatch → IGNORE.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.95,
+      "expected_conflict_types": []
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}
