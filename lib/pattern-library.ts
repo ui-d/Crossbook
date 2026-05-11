@@ -301,7 +301,9 @@ function detectDateFormatOnly(
   const h = pair.hubspot_record;
   const q = pair.quickbooks_record;
   if (!h || !q) return null;
-  if (pair.match_signals.date_score < 1) return null;
+  if (!h.date || !q.date) return null;
+  // Same calendar date required — date_score=1 isn't enough (90-day window).
+  if (h.date.getTime() !== q.date.getTime()) return null;
   if (sig.raw_strings_differ) {
     if ((h.date_raw ?? "") === (q.date_raw ?? "")) return null;
   }

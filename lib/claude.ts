@@ -57,10 +57,10 @@ Respond in valid JSON only. No markdown, no preamble, no code fences. The JSON m
 
 const conflictSchema = z.object({
   field: z.string(),
-  hubspot_value: z.string().nullable(),
-  hubspot_row_index: z.number().int().nullable(),
-  quickbooks_value: z.string().nullable(),
-  quickbooks_row_index: z.number().int().nullable(),
+  hubspot_value: z.string().nullish().transform((v) => v ?? null),
+  hubspot_row_index: z.number().int().nullish().transform((v) => v ?? null),
+  quickbooks_value: z.string().nullish().transform((v) => v ?? null),
+  quickbooks_row_index: z.number().int().nullish().transform((v) => v ?? null),
   explanation: z.string(),
   recommended_action: z.enum([
     "TRUST_HUBSPOT",
@@ -69,7 +69,7 @@ const conflictSchema = z.object({
     "IGNORE",
   ]),
   priority: z.enum(["HIGH", "MEDIUM", "LOW"]),
-  amount_at_risk_cents: z.number().nullable(),
+  amount_at_risk_cents: z.number().nullish().transform((v) => v ?? null),
   confidence: z.number().min(0).max(1),
   conflict_type: z.enum([
     "AMOUNT",
