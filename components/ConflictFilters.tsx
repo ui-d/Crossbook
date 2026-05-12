@@ -62,12 +62,12 @@ export function ConflictFilters({
   };
 
   return (
-    <section
+    <fieldset
+      disabled={disabled}
       className={cn(
         "rounded-md border bg-card p-3 space-y-3 text-sm",
         disabled ? "opacity-60" : null,
       )}
-      aria-disabled={disabled}
     >
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-xs uppercase text-muted-foreground">Priority</span>
@@ -131,7 +131,7 @@ export function ConflictFilters({
       {disabled && disabledHint ? (
         <p className="text-xs text-muted-foreground">{disabledHint}</p>
       ) : null}
-    </section>
+    </fieldset>
   );
 }
 
