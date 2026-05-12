@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Lock } from "lucide-react";
 
 import { BulkActionBar } from "@/components/BulkActionBar";
 import { ConflictRow } from "@/components/ConflictRow";
@@ -58,10 +59,7 @@ export function ConflictTable({
     useState<Record<string, Decision>>(initialDecisions);
 
   const filtered = useMemo(
-    () =>
-      isPaid
-        ? applyFilters(conflicts, filters, decisions)
-        : conflicts,
+    () => (isPaid ? applyFilters(conflicts, filters, decisions) : conflicts),
     [conflicts, filters, decisions, isPaid],
   );
 
@@ -86,23 +84,24 @@ export function ConflictTable({
 
   if (conflicts.length === 0) {
     return (
-      <section className="rounded-lg border bg-card p-6 text-center text-sm text-muted-foreground">
-        No conflicts detected — your CSVs match up cleanly.
+      <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 text-center text-[14px] text-on-surface-variant">
+        No conflicts detected — your CSVs match up cleanly. 🎉
       </section>
     );
   }
 
   return (
-    <section className="space-y-3">
+    <section className="flex flex-col gap-4">
       <header className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">
-          Conflicts{" "}
-          <span className="text-muted-foreground">
-            ({filtered.length}
-            {filtered.length !== conflicts.length ? `/${conflicts.length}` : ""}
-            )
-          </span>
-        </h2>
+        <div>
+          <h2 className="font-display text-[20px] font-semibold text-on-surface">
+            Conflicts
+          </h2>
+          <p className="text-[13px] text-on-surface-variant">
+            {filtered.length}
+            {filtered.length !== conflicts.length ? ` / ${conflicts.length}` : ""} shown
+          </p>
+        </div>
       </header>
 
       <ConflictFilters
@@ -110,11 +109,7 @@ export function ConflictTable({
         state={filters}
         onChange={setFilters}
         disabled={!isPaid}
-        disabledHint={
-          !isPaid
-            ? "Filters unlock with the $49/month plan."
-            : undefined
-        }
+        disabledHint={!isPaid ? "Filters unlock with the $49/month plan." : undefined}
       />
 
       <BulkActionBar
@@ -124,15 +119,11 @@ export function ConflictTable({
         onSelect={setSelectedIds}
         onCommit={handleBulkCommit}
         disabled={!isPaid}
-        disabledHint={
-          !isPaid
-            ? "Bulk actions unlock with the $49/month plan."
-            : undefined
-        }
+        disabledHint={!isPaid ? "Bulk actions unlock with the $49/month plan." : undefined}
         saveBulk={saveBulk}
       />
 
-      <div className="space-y-3">
+      <div className="flex flex-col gap-4">
         {filtered.map((conflict, index) => {
           const isBlurred = !isPaid && index >= freeTierUnblurredLimit;
           return (
@@ -193,7 +184,7 @@ function ConflictRowWrapper({
         checked={selected}
         onChange={onToggleSelect}
         disabled={!selectable}
-        className="mt-5 size-4 accent-primary disabled:opacity-30"
+        className="mt-4 size-4 accent-primary disabled:opacity-30 shrink-0"
         aria-label="Select conflict"
       />
       <div className={blurred ? "flex-1 relative" : "flex-1"}>
@@ -211,10 +202,13 @@ function ConflictRowWrapper({
 
 function BlurredOverlay() {
   return (
-    <div className="absolute inset-0 z-10 rounded-md backdrop-blur-sm bg-background/60 flex items-center justify-center text-xs text-center px-4">
-      <p>
-        Upgrade to $49/month to view this conflict and the rest of the report.
-      </p>
+    <div className="absolute inset-0 z-10 rounded-xl backdrop-blur-sm bg-background/60 flex items-center justify-center text-[13px] text-center px-6">
+      <div className="flex flex-col items-center gap-1">
+        <Lock className="size-5 text-primary" />
+        <p className="text-on-surface font-medium">
+          Upgrade to $49/month to view this conflict.
+        </p>
+      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { z } from "zod";
+import { ArrowRight, FileSpreadsheet, ShieldCheck, UploadCloud } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -195,7 +196,7 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
   );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-2">
         <DropTarget
           slot="hubspot"
@@ -233,7 +234,7 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="upload-email">Email (we send your report here)</Label>
         <Input
           id="upload-email"
@@ -251,31 +252,35 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
           }
         />
         {state.emailError ? (
-          <p className="text-destructive text-sm">{state.emailError}</p>
+          <p className="text-error text-[13px]">{state.emailError}</p>
         ) : null}
       </div>
 
-      <div className="rounded-md border bg-muted/40 p-3 text-sm text-muted-foreground">
-        🔒 Your CSV files are deleted after 30 days. Reports are kept while your
-        account is active.{" "}
-        <a className="underline" href="/privacy">
-          Privacy Policy
-        </a>
+      <div className="flex items-center gap-2 bg-surface-container border border-outline-variant rounded-lg p-4 text-[13px] text-on-surface-variant">
+        <ShieldCheck className="size-4 text-primary shrink-0" />
+        <span>
+          Your CSV files are deleted after 30 days. Reports are kept while your account is active.{" "}
+          <a className="text-primary hover:underline" href="/privacy">
+            Privacy Policy
+          </a>
+        </span>
       </div>
 
-      <Button type="submit" size="lg" disabled={!canSubmit}>
-        {state.status === "submitting"
-          ? "Analyzing…"
-          : "Match → see conflicts in 60 seconds"}
-      </Button>
+      <div className="flex flex-wrap items-center gap-4">
+        <Button type="submit" variant="cta" size="lg" disabled={!canSubmit} className="gap-2">
+          {state.status === "submitting" ? "Analyzing…" : "Match → see conflicts"}
+          {state.status === "submitting" ? null : <ArrowRight className="size-4" />}
+        </Button>
+        <span className="text-[13px] text-on-surface-variant">
+          Typical run: 30–60 seconds with streaming progress.
+        </span>
+      </div>
 
       {state.serverMessage ? (
         <p
           className={cn(
-            "text-sm",
-            state.status === "error"
-              ? "text-destructive"
-              : "text-muted-foreground",
+            "text-[13px]",
+            state.status === "error" ? "text-error" : "text-on-surface-variant",
           )}
         >
           {state.serverMessage}
@@ -315,7 +320,7 @@ function DropTarget({
   onSelect,
 }: DropTargetProps) {
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <Label>{label}</Label>
       <div
         role="button"
@@ -331,26 +336,35 @@ function DropTarget({
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         className={cn(
-          "border-2 border-dashed rounded-md p-6 cursor-pointer transition text-center",
+          "border-2 border-dashed rounded-xl p-6 cursor-pointer transition-all text-center min-h-[170px] flex flex-col items-center justify-center gap-2",
           isDragOver
-            ? "border-primary bg-primary/5"
-            : "border-muted hover:border-primary/60",
-          error ? "border-destructive" : null,
+            ? "border-primary bg-primary-fixed/50"
+            : "border-outline-variant bg-surface-container-lowest hover:border-primary/60 hover:bg-surface-container-low",
+          error ? "border-error bg-error-container/30" : null,
         )}
       >
         {file ? (
-          <div className="space-y-1">
-            <p className="text-sm font-medium">{file.file.name}</p>
-            <p className="text-muted-foreground text-xs">
-              {(file.file.size / 1024).toFixed(1)} KB ·{" "}
-              {file.approxRowCount.toLocaleString()} rows (approx)
-            </p>
-          </div>
+          <>
+            <div className="size-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center">
+              <FileSpreadsheet className="size-5" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-[14px] font-semibold text-on-surface break-all">{file.file.name}</p>
+              <p className="text-[12px] text-on-surface-variant">
+                {(file.file.size / 1024).toFixed(1)} KB · {file.approxRowCount.toLocaleString()} rows
+              </p>
+            </div>
+          </>
         ) : (
-          <div className="space-y-1">
-            <p className="text-sm">Drop your CSV here or click to browse</p>
-            <p className="text-muted-foreground text-xs">{hint}</p>
-          </div>
+          <>
+            <div className="size-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center">
+              <UploadCloud className="size-5" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-[14px] font-medium text-on-surface">Drop your CSV here or click to browse</p>
+              <p className="text-[12px] text-on-surface-variant">{hint}</p>
+            </div>
+          </>
         )}
       </div>
       <input
@@ -361,7 +375,7 @@ function DropTarget({
         className="hidden"
         onChange={onSelect}
       />
-      {error ? <p className="text-destructive text-sm">{error}</p> : null}
+      {error ? <p className="text-error text-[13px]">{error}</p> : null}
     </div>
   );
 }

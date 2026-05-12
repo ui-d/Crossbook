@@ -1,10 +1,13 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import { Sparkles, Calendar } from "lucide-react";
 
+import AppShell from "@/components/AppShell";
 import { ConflictTable } from "@/components/ConflictTable";
 import { DeltaSection } from "@/components/DeltaSection";
 import { ExportButtons } from "@/components/ExportButtons";
 import { SummaryCard } from "@/components/SummaryCard";
+import { Button } from "@/components/ui/button";
 import type { Delta } from "@/lib/delta-engine";
 import type { BuiltReport } from "@/lib/report-builder";
 
@@ -75,26 +78,27 @@ export default async function ReportPage({ params }: PageProps) {
   const { summary, conflicts } = report.result_json;
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10 space-y-8">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Reconciliation report
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {report.hubspot_filename} ↔ {report.quickbooks_filename} ·{" "}
+    <AppShell
+      title="Reconciliation report"
+      subtitle={
+        <span className="inline-flex items-center gap-1">
+          <span className="font-mono text-[13px]">{report.hubspot_filename}</span>
+          <span className="text-on-surface-variant/60">↔</span>
+          <span className="font-mono text-[13px]">{report.quickbooks_filename}</span>
+        </span>
+      }
+      actions={
+        <span className="inline-flex items-center gap-1 text-[13px] text-on-surface-variant">
+          <Calendar className="size-4" />
           {new Date(report.created_at).toLocaleString()}
-        </p>
-      </header>
-
+        </span>
+      }
+    >
       <SummaryCard summary={summary} />
 
-      {report.delta_json && report.is_paid ? (
-        <DeltaSection delta={report.delta_json} />
-      ) : null}
+      {report.delta_json && report.is_paid ? <DeltaSection delta={report.delta_json} /> : null}
 
-      {!report.is_paid ? (
-        <UpgradeBanner reportId={report.id} />
-      ) : null}
+      {!report.is_paid ? <UpgradeBanner reportId={report.id} /> : null}
 
       {report.is_paid ? (
         <ExportButtons
@@ -102,8 +106,7 @@ export default async function ReportPage({ params }: PageProps) {
           isPaid={report.is_paid}
           hasHighPriorityUnresolved={conflicts.some(
             (c) =>
-              c.priority === "HIGH" &&
-              !decisionsByConflictId[c.conflict_id],
+              c.priority === "HIGH" && !decisionsByConflictId[c.conflict_id],
           )}
         />
       ) : null}
@@ -114,29 +117,27 @@ export default async function ReportPage({ params }: PageProps) {
         initialDecisions={decisionsByConflictId}
         isPaid={report.is_paid}
       />
-    </main>
+    </AppShell>
   );
 }
 
 function UpgradeBanner({ reportId }: { reportId: string }) {
   return (
-    <section className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
-      <p className="font-medium">
-        Free tier: full summary visible, action buttons enabled on the first 5
-        conflicts.
-      </p>
-      <p className="text-muted-foreground mt-1">
-        Upgrade to $49/month for unlimited reports, bulk actions, filters,
-        monthly delta tracking, and corrected CSV export. 93% less than HubSpot
-        Data Hub Professional ($720/seat/month).
-      </p>
-      <form action={`/api/checkout?reportId=${reportId}`} method="post" className="mt-3">
-        <button
-          type="submit"
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Upgrade to $49/month
-        </button>
+    <section className="border border-primary-container/40 bg-primary-fixed rounded-xl p-6 flex flex-col md:flex-row md:items-center gap-4 shadow-ambient">
+      <div className="size-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+        <Sparkles className="size-5" />
+      </div>
+      <div className="flex-1">
+        <p className="font-display text-[16px] font-semibold text-on-surface">
+          Free tier: first 5 conflicts unblurred
+        </p>
+        <p className="text-[13px] text-on-surface-variant mt-1">
+          Upgrade to $49/month for unlimited reports, bulk actions, filters, monthly delta tracking, and
+          corrected CSV export. 93% less than HubSpot Data Hub Professional ($720/seat/month).
+        </p>
+      </div>
+      <form action={`/api/checkout?reportId=${reportId}`} method="post">
+        <Button type="submit" variant="cta">Upgrade to $49/month</Button>
       </form>
     </section>
   );

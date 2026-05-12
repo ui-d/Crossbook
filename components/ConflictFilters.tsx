@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,16 +62,21 @@ export function ConflictFilters({
     onChange({ ...state, conflictTypes: next });
   };
 
+  const hasActive =
+    state.priorities.size > 0 ||
+    state.conflictTypes.size > 0 ||
+    state.companyQuery.length > 0 ||
+    state.decisionStatus !== "ALL";
+
   return (
     <fieldset
       disabled={disabled}
       className={cn(
-        "rounded-md border bg-card p-3 space-y-3 text-sm",
+        "rounded-xl border border-outline-variant bg-surface-container-low p-4 flex flex-col gap-4",
         disabled ? "opacity-60" : null,
       )}
     >
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs uppercase text-muted-foreground">Priority</span>
+      <FilterRow label="Priority">
         {PRIORITIES.map((p) => (
           <FilterPill
             key={p}
@@ -80,9 +86,9 @@ export function ConflictFilters({
             label={p}
           />
         ))}
-      </div>
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs uppercase text-muted-foreground">Type</span>
+      </FilterRow>
+
+      <FilterRow label="Type">
         {availableTypes.map((t) => (
           <FilterPill
             key={t}
@@ -92,46 +98,58 @@ export function ConflictFilters({
             label={t}
           />
         ))}
-      </div>
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs uppercase text-muted-foreground">Company</span>
-        <Input
-          value={state.companyQuery}
-          disabled={disabled}
-          onChange={(e) => onChange({ ...state, companyQuery: e.target.value })}
-          placeholder="Filter by company name"
-          className="h-8 max-w-xs"
-        />
-        <span className="text-xs uppercase text-muted-foreground ml-4">Status</span>
-        {(["ALL", "PENDING", "DECIDED"] as const).map((s) => (
-          <FilterPill
-            key={s}
-            active={state.decisionStatus === s}
+      </FilterRow>
+
+      <div className="flex flex-wrap items-center gap-4">
+        <FilterRow label="Status">
+          {(["ALL", "PENDING", "DECIDED"] as const).map((s) => (
+            <FilterPill
+              key={s}
+              active={state.decisionStatus === s}
+              disabled={disabled}
+              onClick={() => onChange({ ...state, decisionStatus: s })}
+              label={s}
+            />
+          ))}
+        </FilterRow>
+        <div className="flex items-center gap-2 flex-1 min-w-[200px] max-w-sm">
+          <span className="text-label-caps text-on-surface-variant shrink-0">Company</span>
+          <Input
+            value={state.companyQuery}
             disabled={disabled}
-            onClick={() => onChange({ ...state, decisionStatus: s })}
-            label={s}
+            onChange={(e) => onChange({ ...state, companyQuery: e.target.value })}
+            placeholder="Filter by company name"
+            className="h-9"
           />
-        ))}
-        {(state.priorities.size > 0 ||
-          state.conflictTypes.size > 0 ||
-          state.companyQuery.length > 0 ||
-          state.decisionStatus !== "ALL") && (
+        </div>
+        {hasActive && (
           <Button
             type="button"
             variant="ghost"
             size="sm"
             disabled={disabled}
             onClick={() => onChange(emptyFilters())}
-            className="ml-auto"
+            className="ml-auto gap-1"
           >
+            <X className="size-3.5" />
             Clear
           </Button>
         )}
       </div>
+
       {disabled && disabledHint ? (
-        <p className="text-xs text-muted-foreground">{disabledHint}</p>
+        <p className="text-[12px] text-on-surface-variant">{disabledHint}</p>
       ) : null}
     </fieldset>
+  );
+}
+
+function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      <span className="text-label-caps text-on-surface-variant shrink-0">{label}</span>
+      {children}
+    </div>
   );
 }
 
@@ -149,10 +167,10 @@ function FilterPill({ active, disabled, onClick, label }: FilterPillProps) {
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-2.5 py-0.5 text-xs",
+        "rounded-full border px-3 py-1 text-[12px] font-medium transition-colors",
         active
-          ? "bg-primary text-primary-foreground border-primary"
-          : "bg-background hover:bg-accent",
+          ? "bg-primary-container text-on-primary border-primary-container"
+          : "bg-surface-container-lowest border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
         disabled ? "cursor-not-allowed" : "cursor-pointer",
       )}
     >

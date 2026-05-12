@@ -1,3 +1,5 @@
+import { FileText } from "lucide-react";
+
 interface SourceCitationProps {
   hubspotRowIndex: number | null;
   quickbooksRowIndex: number | null;
@@ -12,7 +14,8 @@ export function SourceCitation({
   if (quickbooksRowIndex !== null) parts.push(`QBO row ${quickbooksRowIndex + 1}`);
   if (parts.length === 0) return null;
   return (
-    <span className="text-xs text-muted-foreground font-mono">
+    <span className="inline-flex items-center gap-1 text-[12px] text-on-surface-variant font-mono bg-surface-container-low px-2 py-1 rounded">
+      <FileText className="size-3.5" />
       {parts.join(" · ")}
     </span>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { Layers, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { saveBulkDecisionsAction } from "@/lib/decisions";
@@ -79,16 +80,12 @@ export function BulkActionBar({
   };
 
   return (
-    <section className="rounded-md border bg-muted/30 p-3 text-sm space-y-2">
+    <section className="bg-surface-container-low border border-outline-variant rounded-xl p-4 flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs uppercase text-muted-foreground">Quick select</span>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          disabled={disabled}
-          onClick={selectByPriority}
-        >
+        <span className="text-label-caps text-on-surface-variant inline-flex items-center gap-1">
+          <Zap className="size-3.5" /> Quick select
+        </span>
+        <Button type="button" size="sm" variant="outline" disabled={disabled} onClick={selectByPriority}>
           All HIGH priority
         </Button>
         <Button
@@ -113,48 +110,27 @@ export function BulkActionBar({
         )}
       </div>
       {visible ? (
-        <div className="flex flex-wrap items-center gap-2 border-t pt-2">
-          <span className="text-sm font-medium">
+        <div className="flex flex-wrap items-center gap-2 border-t border-outline-variant pt-2">
+          <span className="text-[13px] font-semibold text-on-surface inline-flex items-center gap-1">
+            <Layers className="size-4 text-primary" />
             {count} selected — apply:
           </span>
-          <Button
-            type="button"
-            size="sm"
-            disabled={pending}
-            onClick={() => commitBulk("TRUST_HUBSPOT")}
-          >
+          <Button type="button" size="sm" variant="cta" disabled={pending} onClick={() => commitBulk("TRUST_HUBSPOT")}>
             Trust HubSpot
           </Button>
-          <Button
-            type="button"
-            size="sm"
-            disabled={pending}
-            onClick={() => commitBulk("TRUST_QUICKBOOKS")}
-          >
+          <Button type="button" size="sm" variant="cta" disabled={pending} onClick={() => commitBulk("TRUST_QUICKBOOKS")}>
             Trust QuickBooks
           </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            disabled={pending}
-            onClick={() => commitBulk("MANUAL_REVIEW")}
-          >
+          <Button type="button" size="sm" variant="secondary" disabled={pending} onClick={() => commitBulk("MANUAL_REVIEW")}>
             Flag for review
           </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            disabled={pending}
-            onClick={() => commitBulk("IGNORE")}
-          >
+          <Button type="button" size="sm" variant="ghost" disabled={pending} onClick={() => commitBulk("IGNORE")}>
             Ignore
           </Button>
         </div>
       ) : null}
       {disabled && disabledHint ? (
-        <p className="text-xs text-muted-foreground">{disabledHint}</p>
+        <p className="text-[12px] text-on-surface-variant">{disabledHint}</p>
       ) : null}
     </section>
   );
