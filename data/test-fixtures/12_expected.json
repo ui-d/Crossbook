@@ -1,0 +1,14 @@
+{
+  "case_id": "12_tax_included_10pct",
+  "description": "QBO invoice is exactly 10% higher than HubSpot deal — common pattern where HubSpot tracks pre-tax and QBO posts tax-inclusive. Claude should surface AMOUNT.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.7,
+      "expected_conflict_types": ["AMOUNT"]
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

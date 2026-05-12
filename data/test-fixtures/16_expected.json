@@ -1,0 +1,14 @@
+{
+  "case_id": "16_large_amount_mismatch_10x",
+  "description": "Same company + email + dates within a week, but amounts are 10x off ($50K vs $5K). Probably a missing zero somewhere — HIGH priority AMOUNT conflict.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.6,
+      "expected_conflict_types": ["AMOUNT"]
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

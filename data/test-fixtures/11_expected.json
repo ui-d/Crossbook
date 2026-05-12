@@ -1,0 +1,14 @@
+{
+  "case_id": "11_qbo_subcustomer_notation",
+  "description": "QuickBooks records the customer as a sub-customer 'Parent:Child'. After normalization the parent portion matches HubSpot. qb_subcustomer_notation pattern should hit.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.7,
+      "expected_conflict_types": []
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

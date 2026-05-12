@@ -1,0 +1,14 @@
+{
+  "case_id": "15_polish_full_stack_normalization",
+  "description": "Polish company stressing every normalizer: diacritics (Żółw vs Zolw), legal suffix variation (S.A. vs Spolka Akcyjna), Polish date format (5.01.2026 = 2026-01-05). All four signals should match cleanly.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.85,
+      "expected_conflict_types": []
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

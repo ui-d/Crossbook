@@ -104,8 +104,8 @@ describe("scoreMatch (composite)", () => {
 describe("findCandidatePairs over fixtures", () => {
   const ids = listFixtures();
 
-  it("loads all 10 fixtures", () => {
-    expect(ids.length).toBe(10);
+  it("loads all 20 fixtures", () => {
+    expect(ids.length).toBe(20);
   });
 
   it.each(ids)("fixture %i: matches expectations", (id) => {

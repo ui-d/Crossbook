@@ -1,0 +1,7 @@
+{
+  "case_id": "19_qbo_only_direct_sale",
+  "description": "QBO has an invoice but HubSpot has no deal. Could be a direct-sale customer that never went through the CRM, or a CRM hygiene gap.",
+  "expected_match_pairs": [],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": [0]
+}

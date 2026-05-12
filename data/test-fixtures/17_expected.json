@@ -1,0 +1,14 @@
+{
+  "case_id": "17_date_drift_within_tolerance",
+  "description": "Same company, same amount, dates 9 days apart (within the 90-day full-credit window). Normal closing-to-billing lag — no real conflict.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.9,
+      "expected_conflict_types": []
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

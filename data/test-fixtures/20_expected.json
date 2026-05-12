@@ -1,0 +1,14 @@
+{
+  "case_id": "20_multi_conflict_stress",
+  "description": "Same entity (Acme) by name normalization + email domain, but every other dimension differs: amount $10K vs €9K, currency USD vs EUR, dates 2 weeks apart, email contact role differs. Should match, then Claude surfaces multiple conflict types.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.5,
+      "expected_conflict_types": ["CURRENCY", "EMAIL"]
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

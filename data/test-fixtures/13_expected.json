@@ -1,0 +1,14 @@
+{
+  "case_id": "13_closed_lost_but_invoiced",
+  "description": "HubSpot says Closed Lost, QBO says Paid for the same company + amount. Data inconsistency — either HubSpot stage is wrong or QBO has a stray invoice. STATUS conflict.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.85,
+      "expected_conflict_types": ["STATUS"]
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}

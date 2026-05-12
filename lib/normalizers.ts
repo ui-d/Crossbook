@@ -5,7 +5,7 @@ const LEGAL_SUFFIXES: RegExp[] = [
   // English
   /\s+(inc\.?|incorporated|corp\.?|corporation|llc|l\.l\.c\.|ltd\.?|limited|plc|co\.?)$/i,
   // Polish
-  /\s+(sp\.?\s*z\s*o\.?\s*o\.?|spolka\s+z\s+o\.?o\.?|sp\.?\s*j\.?|sp\.?\s*k\.?)$/i,
+  /\s+(sp\.?\s*z\s*o\.?\s*o\.?|spolka\s+z\s+o\.?o\.?|spolka\s+akcyjna|sp\.?\s*j\.?|sp\.?\s*k\.?)$/i,
   // German / DACH
   /\s+(gmbh|ag|kg|ohg|gbr|ug)$/i,
   // French / Italian / Spanish / Nordics

@@ -1,0 +1,7 @@
+{
+  "case_id": "18_three_orphan_closed_wons",
+  "description": "Three HubSpot deals closed won, zero QuickBooks invoices. All three should fire the closed_won_no_qbo_invoice pattern. Worst-case billing-miss scenario.",
+  "expected_match_pairs": [],
+  "expected_unmatched_hubspot_rows": [0, 1, 2],
+  "expected_unmatched_quickbooks_rows": []
+}

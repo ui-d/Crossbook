@@ -1,0 +1,14 @@
+{
+  "case_id": "14_whitespace_casing_only",
+  "description": "Same company, just whitespace + casing + trailing dot differences. After normalization both are 'acme'. Clean match, no real conflicts beyond noise.",
+  "expected_match_pairs": [
+    {
+      "hubspot_row": 0,
+      "quickbooks_row": 0,
+      "min_confidence": 0.9,
+      "expected_conflict_types": []
+    }
+  ],
+  "expected_unmatched_hubspot_rows": [],
+  "expected_unmatched_quickbooks_rows": []
+}
