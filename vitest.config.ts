@@ -24,6 +24,7 @@ export default defineConfig({
         "lib/delta-engine.ts",
         "lib/digest.ts",
         "lib/privacy.ts",
+        "lib/csv-exporter.ts",
       ],
       exclude: ["lib/**/*.test.ts", "lib/test-utils/**"],
       thresholds: {

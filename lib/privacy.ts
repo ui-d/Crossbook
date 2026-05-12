@@ -163,7 +163,16 @@ export async function runRetentionSweep(
         files_purged_at: now.toISOString(),
       })
       .eq("id", row.id);
-    if (!updateError) purged++;
+    if (updateError) continue;
+    await supabase
+      .from("report_files")
+      .update({
+        hubspot_csv_text: null,
+        quickbooks_csv_text: null,
+        purged_at: now.toISOString(),
+      })
+      .eq("report_id", row.id);
+    purged++;
   }
 
   return {

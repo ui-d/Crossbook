@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import { ConflictTable } from "@/components/ConflictTable";
 import { DeltaSection } from "@/components/DeltaSection";
+import { ExportButtons } from "@/components/ExportButtons";
 import { SummaryCard } from "@/components/SummaryCard";
 import type { Delta } from "@/lib/delta-engine";
 import type { BuiltReport } from "@/lib/report-builder";
@@ -93,6 +94,18 @@ export default async function ReportPage({ params }: PageProps) {
 
       {!report.is_paid ? (
         <UpgradeBanner reportId={report.id} />
+      ) : null}
+
+      {report.is_paid ? (
+        <ExportButtons
+          reportId={report.id}
+          isPaid={report.is_paid}
+          hasHighPriorityUnresolved={conflicts.some(
+            (c) =>
+              c.priority === "HIGH" &&
+              !decisionsByConflictId[c.conflict_id],
+          )}
+        />
       ) : null}
 
       <ConflictTable

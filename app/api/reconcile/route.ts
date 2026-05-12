@@ -318,6 +318,12 @@ export async function POST(req: NextRequest): Promise<Response> {
       );
     }
 
+    await supabase.from("report_files").insert({
+      report_id: inserted.id,
+      hubspot_csv_text: hubspotText,
+      quickbooks_csv_text: quickbooksText,
+    });
+
     if (!isSubscribed && priorUsage === 0) {
       await incrementFreeUsage(supabase, email);
     }

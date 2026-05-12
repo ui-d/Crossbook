@@ -234,15 +234,26 @@ describe("runRetentionSweep", () => {
     const result = await runRetentionSweep(mock.client, NOW);
     expect(result.reports_examined).toBe(2);
     expect(result.reports_purged).toBe(2);
-    expect(mock.updates).toHaveLength(2);
-    const patch1 = mock.updates.find((u) => u.id === "old1")!.patch;
-    expect(patch1.result_json).toEqual({
+    // Each row produces two updates: reports + report_files.
+    expect(mock.updates.length).toBe(4);
+    const reportsUpdate1 = mock.updates.find(
+      (u) => u.id === "old1" && "result_json" in u.patch,
+    )!.patch;
+    expect(reportsUpdate1.result_json).toEqual({
       summary: { total_conflicts: 4 },
       conflicts: [],
     });
-    expect(patch1.files_purged_at).toBe(NOW.toISOString());
-    const patch2 = mock.updates.find((u) => u.id === "old2")!.patch;
-    expect(patch2.result_json).toBeNull();
+    expect(reportsUpdate1.files_purged_at).toBe(NOW.toISOString());
+    const filesUpdate1 = mock.updates.find(
+      (u) => u.id === "old1" && "hubspot_csv_text" in u.patch,
+    )!.patch;
+    expect(filesUpdate1.hubspot_csv_text).toBeNull();
+    expect(filesUpdate1.quickbooks_csv_text).toBeNull();
+    expect(filesUpdate1.purged_at).toBe(NOW.toISOString());
+    const reportsUpdate2 = mock.updates.find(
+      (u) => u.id === "old2" && "result_json" in u.patch,
+    )!.patch;
+    expect(reportsUpdate2.result_json).toBeNull();
   });
 
   it("retention window is the documented constant", () => {
