@@ -19,12 +19,27 @@ type Decision =
   | "MANUAL_REVIEW"
   | "IGNORE";
 
-interface ConflictTableProps {
+interface SaveDecisionInput {
+  reportId: string;
+  conflictId: string;
+  decision: Decision;
+  notes: string | null;
+}
+
+interface SaveBulkInput {
+  reportId: string;
+  conflictIds: string[];
+  decision: Decision;
+}
+
+export interface ConflictTableProps {
   reportId: string;
   conflicts: ReportConflict[];
   initialDecisions: Record<string, Decision>;
   isPaid: boolean;
   freeTierUnblurredLimit?: number;
+  saveDecision?: (input: SaveDecisionInput) => Promise<{ ok: boolean; error?: string }>;
+  saveBulk?: (input: SaveBulkInput) => Promise<{ ok: boolean; error?: string }>;
 }
 
 export function ConflictTable({
@@ -33,7 +48,10 @@ export function ConflictTable({
   initialDecisions,
   isPaid,
   freeTierUnblurredLimit = 5,
+  saveDecision,
+  saveBulk,
 }: ConflictTableProps) {
+  const saveHandler = saveDecision ?? saveDecisionAction;
   const [filters, setFilters] = useState<FilterState>(emptyFilters());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [decisions, setDecisions] =
@@ -111,6 +129,7 @@ export function ConflictTable({
             ? "Bulk actions unlock with the $49/month plan."
             : undefined
         }
+        saveBulk={saveBulk}
       />
 
       <div className="space-y-3">
@@ -127,6 +146,7 @@ export function ConflictTable({
               onToggleSelect={() => toggleSelect(conflict.conflict_id)}
               selectable={isPaid}
               blurred={isBlurred}
+              saveHandler={saveHandler}
             />
           );
         })}
@@ -144,6 +164,7 @@ interface ConflictRowWrapperProps {
   onToggleSelect: () => void;
   selectable: boolean;
   blurred: boolean;
+  saveHandler: (input: SaveDecisionInput) => Promise<{ ok: boolean; error?: string }>;
 }
 
 function ConflictRowWrapper({
@@ -155,14 +176,10 @@ function ConflictRowWrapper({
   onToggleSelect,
   selectable,
   blurred,
+  saveHandler,
 }: ConflictRowWrapperProps) {
-  const saveWithCallback = async (input: {
-    reportId: string;
-    conflictId: string;
-    decision: Decision;
-    notes: string | null;
-  }) => {
-    const result = await saveDecisionAction(input);
+  const saveWithCallback = async (input: SaveDecisionInput) => {
+    const result = await saveHandler(input);
     if (result.ok) {
       onDecisionApplied(input.conflictId, input.decision);
     }

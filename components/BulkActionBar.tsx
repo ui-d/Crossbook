@@ -12,7 +12,13 @@ type Decision =
   | "MANUAL_REVIEW"
   | "IGNORE";
 
-interface BulkActionBarProps {
+interface BulkInput {
+  reportId: string;
+  conflictIds: string[];
+  decision: Decision;
+}
+
+export interface BulkActionBarProps {
   reportId: string;
   conflicts: ReportConflict[];
   selectedIds: Set<string>;
@@ -20,6 +26,7 @@ interface BulkActionBarProps {
   onCommit: (ids: string[], decision: Decision) => void;
   disabled: boolean;
   disabledHint?: string;
+  saveBulk?: (input: BulkInput) => Promise<{ ok: boolean; error?: string }>;
 }
 
 export function BulkActionBar({
@@ -30,7 +37,9 @@ export function BulkActionBar({
   onCommit,
   disabled,
   disabledHint,
+  saveBulk,
 }: BulkActionBarProps) {
+  const bulkHandler = saveBulk ?? saveBulkDecisionsAction;
   const [pending, startTransition] = useTransition();
   const count = selectedIds.size;
   const visible = count >= 2 && !disabled;
@@ -39,7 +48,7 @@ export function BulkActionBar({
 
   const commitBulk = (decision: Decision) => {
     startTransition(async () => {
-      const result = await saveBulkDecisionsAction({
+      const result = await bulkHandler({
         reportId,
         conflictIds: ids,
         decision,
