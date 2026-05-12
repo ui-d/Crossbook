@@ -21,6 +21,8 @@ export default defineConfig({
         "lib/conflict-scorer.ts",
         "lib/pattern-library.ts",
         "lib/claude.ts",
+        "lib/delta-engine.ts",
+        "lib/digest.ts",
       ],
       exclude: ["lib/**/*.test.ts", "lib/test-utils/**"],
       thresholds: {

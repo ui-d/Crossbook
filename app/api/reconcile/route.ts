@@ -9,9 +9,15 @@ import {
   parseHubSpotCsv,
   parseQuickBooksCsv,
 } from "@/lib/csv-parser";
+import {
+  computeDelta,
+  conflictFingerprint,
+  type Delta,
+  type PriorDecisionRecord,
+} from "@/lib/delta-engine";
 import { normalizeRecords } from "@/lib/normalize-record";
 import { matchPatterns } from "@/lib/pattern-library";
-import { buildReport } from "@/lib/report-builder";
+import { buildReport, type BuiltReport } from "@/lib/report-builder";
 
 export const runtime = "nodejs";
 export const maxDuration = 90;
@@ -111,6 +117,72 @@ async function findPriorReportId(
   return data?.[0]?.id ?? null;
 }
 
+interface PriorReportRow {
+  id: string;
+  created_at: string;
+  result_json: BuiltReport;
+}
+
+async function loadPriorReport(
+  supabase: ReturnType<typeof adminClient>,
+  priorReportId: string,
+): Promise<PriorReportRow | null> {
+  const { data } = await supabase
+    .from("reports")
+    .select("id,created_at,result_json")
+    .eq("id", priorReportId)
+    .maybeSingle<PriorReportRow>();
+  return data ?? null;
+}
+
+async function loadPriorDecisions(
+  supabase: ReturnType<typeof adminClient>,
+  priorReportId: string,
+  priorReport: BuiltReport,
+): Promise<PriorDecisionRecord[]> {
+  const fingerprintByConflictId = new Map<string, string>();
+  for (const conflict of priorReport.conflicts) {
+    fingerprintByConflictId.set(
+      conflict.conflict_id,
+      conflictFingerprint(conflict),
+    );
+  }
+  const { data } = await supabase
+    .from("conflict_decisions")
+    .select("conflict_id,decision")
+    .eq("report_id", priorReportId);
+  const records: PriorDecisionRecord[] = [];
+  for (const row of (data ?? []) as { conflict_id: string; decision: string }[]) {
+    const fp = fingerprintByConflictId.get(row.conflict_id);
+    if (fp) records.push({ fingerprint: fp, decision: row.decision });
+  }
+  return records;
+}
+
+async function computeDeltaForReport(
+  supabase: ReturnType<typeof adminClient>,
+  priorReportId: string | null,
+  current: BuiltReport,
+  currentCreatedAt: string,
+): Promise<Delta | null> {
+  if (!priorReportId) return null;
+  const prior = await loadPriorReport(supabase, priorReportId);
+  if (!prior || !prior.result_json) return null;
+  const priorDecisions = await loadPriorDecisions(
+    supabase,
+    priorReportId,
+    prior.result_json,
+  );
+  return computeDelta({
+    prior_report_id: prior.id,
+    prior_created_at: prior.created_at,
+    prior_report: prior.result_json,
+    current_created_at: currentCreatedAt,
+    current_report: current,
+    prior_decisions: priorDecisions,
+  });
+}
+
 async function userHasActiveSubscription(
   supabase: ReturnType<typeof adminClient>,
   userId: string | null,
@@ -203,8 +275,16 @@ export async function POST(req: NextRequest): Promise<Response> {
       claude_results: claudeResults,
     });
 
-    const filesPurgedAt = new Date();
+    const now = new Date();
+    const filesPurgedAt = new Date(now);
     filesPurgedAt.setDate(filesPurgedAt.getDate() + 30);
+
+    const delta = await computeDeltaForReport(
+      supabase,
+      priorReportId,
+      report,
+      now.toISOString(),
+    );
 
     const { data: inserted, error: insertError } = await supabase
       .from("reports")
@@ -224,6 +304,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         pattern_matches: patternResult.matches,
         is_paid: isPaid,
         prior_report_id: priorReportId,
+        delta_json: delta,
         files_purged_at: filesPurgedAt.toISOString(),
       })
       .select("id")

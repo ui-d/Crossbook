@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
 import { ConflictTable } from "@/components/ConflictTable";
+import { DeltaSection } from "@/components/DeltaSection";
 import { SummaryCard } from "@/components/SummaryCard";
+import type { Delta } from "@/lib/delta-engine";
 import type { BuiltReport } from "@/lib/report-builder";
 
 type Decision =
@@ -34,6 +36,7 @@ interface ReportRow {
   is_paid: boolean;
   status: string;
   result_json: BuiltReport;
+  delta_json: Delta | null;
   created_at: string;
 }
 
@@ -49,7 +52,7 @@ export default async function ReportPage({ params }: PageProps) {
   const { data: report } = await supabase
     .from("reports")
     .select(
-      "id,email,hubspot_filename,quickbooks_filename,is_paid,status,result_json,created_at",
+      "id,email,hubspot_filename,quickbooks_filename,is_paid,status,result_json,delta_json,created_at",
     )
     .eq("id", id)
     .maybeSingle<ReportRow>();
@@ -83,6 +86,10 @@ export default async function ReportPage({ params }: PageProps) {
       </header>
 
       <SummaryCard summary={summary} />
+
+      {report.delta_json && report.is_paid ? (
+        <DeltaSection delta={report.delta_json} />
+      ) : null}
 
       {!report.is_paid ? (
         <UpgradeBanner reportId={report.id} />
