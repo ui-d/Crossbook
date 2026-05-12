@@ -23,6 +23,7 @@ export default defineConfig({
         "lib/claude.ts",
         "lib/delta-engine.ts",
         "lib/digest.ts",
+        "lib/privacy.ts",
       ],
       exclude: ["lib/**/*.test.ts", "lib/test-utils/**"],
       thresholds: {
