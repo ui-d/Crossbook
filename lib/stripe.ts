@@ -12,7 +12,7 @@ if (!secretKey) {
 }
 
 export const stripe = new Stripe(secretKey, {
-  appInfo: { name: "reconcile", url: "https://reconcile.app" },
+  appInfo: { name: "crossbook", url: "https://crossbook.app" },
 });
 
 export const STRIPE_PRICE_ID_MONTHLY =

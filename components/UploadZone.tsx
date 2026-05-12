@@ -266,7 +266,7 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
       <Button type="submit" size="lg" disabled={!canSubmit}>
         {state.status === "submitting"
           ? "Analyzing…"
-          : "Reconcile → see conflicts in 60 seconds"}
+          : "Match → see conflicts in 60 seconds"}
       </Button>
 
       {state.serverMessage ? (
