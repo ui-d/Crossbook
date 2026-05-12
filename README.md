@@ -1,4 +1,4 @@
-# Reconcile
+# Crossbook
 
 CSV-in / plain-English-out **HubSpot ↔ QuickBooks reconciliation** for SMB RevOps teams. Drop two CSV exports — Claude finds conflicts, duplicates, missing invoices, and amount mismatches, cites the exact row in both files, and never auto-merges. $49/month vs. HubSpot Data Hub Professional at $720/seat/month.
 
@@ -153,7 +153,7 @@ Path alias: `@/*` resolves to the repo root.
 
 ## Architecture
 
-The reconcile pipeline runs as:
+The Crossbook pipeline runs as:
 
 ```
 CSV upload

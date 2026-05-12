@@ -1,8 +1,8 @@
 # CLAUDE.md — HubSpot ↔ QuickBooks Reconciliation MVP (v4 — post-review, build-ready)
 
-This file is the source-of-truth project doc for **Reconcile**. Claude Code (claude.ai/code) should treat it as the canonical brief when working in this repo.
+This file is the source-of-truth project doc for **Crossbook**. Claude Code (claude.ai/code) should treat it as the canonical brief when working in this repo.
 
-> **Working name:** Reconcile (placeholder — pick before landing page goes live)
+> **Name:** Crossbook (domain: crossbook.app)
 >
 > **Status:** Build-ready brief. Ship in 21 days, GO/NO-GO at day 24.
 >
@@ -70,7 +70,7 @@ What's already wired (do not duplicate in Day 1–2):
 - shadcn/ui (new-york / neutral / lucide): `components/ui/` has accordion, button, dialog, form, input, label, textarea. `components.json` is configured. `lib/utils.ts` exports `cn()` (clsx + tailwind-merge).
 - All v4 deps installed except `currency.js`, `date-fns`, `date-fns-tz` (Day 3 installs these). vitest 4.1.5 + @vitest/coverage-v8 installed; **no `vitest.config.ts` and no `test` script yet** (Day 4 wires both).
 - Empty surfaces ready for population: `app/api/reconcile/`, `data/test-fixtures/`, `supabase/migrations/`, `supabase/functions/`.
-- Placeholder copy still in `app/page.tsx` and `components/Navbar.tsx` ("Recipe Emporium" template). These get naturally replaced as real UI lands in Days 3 / 11 / 19 — no discrete cleanup task.
+- Placeholder copy still in `app/page.tsx` (SaaS template). Replaced naturally when landing page lands in Day 19. Navbar was rebranded to Crossbook + recipe links stripped.
 
 ## Project structure
 
@@ -768,7 +768,7 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 STRIPE_PRICE_ID_MONTHLY=          # $49/month
 RESEND_API_KEY=
-NEXT_PUBLIC_APP_URL=https://reconcile.app
+NEXT_PUBLIC_APP_URL=https://crossbook.app
 DPA_GENERATOR_API_KEY=            # Iubenda/Termly/Vanta DPA generator
 ```
 
