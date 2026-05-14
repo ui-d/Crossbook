@@ -8,6 +8,12 @@ export const metadata = {
 
 const LAST_UPDATED = "May 12, 2026";
 
+// TODO(post-first-paid-customer): wire iubenda.com Advanced (€199/yr) for
+// live-fetched DPA + signed-PDF download. Setup playbook in
+// docs/iubenda-setup.md. Current static content is GDPR-acceptable for
+// MVP self-serve; upgrade when an enterprise prospect requests a
+// countersigned PDF.
+
 function H2({ children }: { children: React.ReactNode }) {
   return (
     <h2 className="font-display text-[20px] font-semibold text-on-surface mt-4">{children}</h2>
