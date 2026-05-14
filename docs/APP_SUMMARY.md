@@ -43,7 +43,7 @@ CSV-in / plain-English-out **HubSpot ↔ QuickBooks reconciliation** for SMB Rev
 | Auth | Clerk (`@clerk/nextjs` 6.20.0), Google OAuth only for v1 |
 | DB | Supabase Postgres (`@supabase/supabase-js` 2.49), RLS keyed off `auth.jwt() ->> 'sub'` (Clerk-issued, third-party-auth bridge) |
 | Payments | Stripe 22.1 — $49/mo subscription, signature-verified webhook, test/live key auto-switch by `NODE_ENV` |
-| AI | `@anthropic-ai/sdk` 0.95 — model `claude-sonnet-4-6`, prompt caching via `cache_control: ephemeral` on the system prompt; AI SDK 6 (`ai` 6.0.177 + `@ai-sdk/anthropic` 3.0.76) installed but **not used in the pipeline** |
+| AI | `@anthropic-ai/sdk` 0.95 — model `claude-sonnet-4-6`, prompt caching via `cache_control: ephemeral` on the system prompt |
 | CSV | Papa Parse 5.5 |
 | Fuzzy matching | Fuse.js 7.3 + custom Levenshtein layer in `lib/conflict-scorer.ts` |
 | Date / currency | `date-fns` 4.1, `date-fns-tz` 3.2, `currency.js` 2.0 |
@@ -312,11 +312,10 @@ Daily Vercel crons:
 
 1. **Cron runner: Vercel cron, not Supabase Edge Functions.** Both crons (`monthly-digest`, `file-retention-sweep`) run as Next.js route handlers under `/api/cron/*`, scheduled in `vercel.json` and gated by `CRON_SECRET`. Same env-var scope as the rest of the app; no Deno/edge-function porting overhead.
 2. **Iubenda DPA deferred.** Iubenda's only API-enabled tier is €199/yr (Advanced). Pre-revenue spend is premature. The static `/dpa` page is GDPR-acceptable for self-serve MVP. `docs/iubenda-setup.md` is the ready-to-execute upgrade playbook for the day an enterprise prospect asks for a countersigned DPA. A TODO comment in `app/dpa/page.tsx` keeps the upgrade path visible.
-3. **Two AI SDKs installed, only one used.** `@anthropic-ai/sdk` powers the pipeline. `ai` 6.0.177 + `@ai-sdk/anthropic` 3.0.76 are dependencies but unused — harmless, kept for the eventual streaming-progress UX migration.
-4. **Raw CSV moved out of `reports` row.** Migration `0002_report_files.sql` extracts the heavy `hubspot_csv_text`/`quickbooks_csv_text` columns into a sibling `report_files` table so listing queries don't hit the bloat, and so the retention sweep nulls only the relevant columns.
-5. **Visual system rebuilt.** Editorial minimal, pipeview-inspired: Geist Sans + Instrument Serif, hairline borders, motion-driven entrance/reveal. Landing page is a 9-section composition with a fully functional `<InteractiveSample />` (rather than a static screenshot, per the v4 brief mandate).
-6. **Fixture set 10 → 20.** Phase 2 Day 10 added 10 adversarial synthetic stress cases (sub-customer notation, tax-included, closed-lost-but-invoiced, whitespace/casing only, full Polish-stack normalization, 10× amount mismatch, date-drift within tolerance, 3 orphan closed-wons, QBO-only direct sale, multi-conflict stress). Real beta-cohort data not on hand yet — the 5+5 split was replaced by 0+10 synthetic.
-7. **Next.js bumped 15.4.1 → 15.5.18** to patch CVE-2025-66478. No app-level changes required.
+3. **Raw CSV moved out of `reports` row.** Migration `0002_report_files.sql` extracts the heavy `hubspot_csv_text`/`quickbooks_csv_text` columns into a sibling `report_files` table so listing queries don't hit the bloat, and so the retention sweep nulls only the relevant columns.
+4. **Visual system rebuilt.** Editorial minimal, pipeview-inspired: Geist Sans + Instrument Serif, hairline borders, motion-driven entrance/reveal. Landing page is a 9-section composition with a fully functional `<InteractiveSample />` (rather than a static screenshot, per the v4 brief mandate).
+5. **Fixture set 10 → 20.** Phase 2 Day 10 added 10 adversarial synthetic stress cases (sub-customer notation, tax-included, closed-lost-but-invoiced, whitespace/casing only, full Polish-stack normalization, 10× amount mismatch, date-drift within tolerance, 3 orphan closed-wons, QBO-only direct sale, multi-conflict stress). Real beta-cohort data not on hand yet — the 5+5 split was replaced by 0+10 synthetic.
+6. **Next.js bumped 15.4.1 → 15.5.18** to patch CVE-2025-66478. No app-level changes required.
 
 ## 13. Known caveats / risks (for an external reviewer)
 

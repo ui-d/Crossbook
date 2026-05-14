@@ -13,7 +13,6 @@
     "eval:fixtures": "tsx scripts/eval-fixtures.ts"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.76",
     "@anthropic-ai/sdk": "^0.95.1",
     "@clerk/backend": "^1.33.1",
     "@clerk/nextjs": "^6.20.0",
@@ -23,7 +22,6 @@
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@supabase/supabase-js": "^2.49.8",
-    "ai": "^6.0.177",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "currency.js": "^2.0.4",
