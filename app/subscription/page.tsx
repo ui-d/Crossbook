@@ -5,10 +5,14 @@ import { CheckCircle2 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import PlanCards from "@/components/PlanCards";
 import { createSupabaseClient } from "@/lib/supabase";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Subscription — Crossbook",
-};
+export const metadata = buildMetadata({
+  title: "Subscription",
+  description: "Manage your Crossbook subscription.",
+  path: "/subscription",
+  noIndex: true,
+});
 
 const ACTIVE_STATUSES = new Set(["active", "trialing"]);
 

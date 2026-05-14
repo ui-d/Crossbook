@@ -1,10 +1,14 @@
 import { SignIn } from "@clerk/nextjs";
 
 import SiteFooter from "@/components/SiteFooter";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Sign in — Crossbook",
-};
+export const metadata = buildMetadata({
+  title: "Sign in",
+  description: "Sign in to access your Crossbook reports and monthly deltas.",
+  path: "/sign-in",
+  noIndex: true,
+});
 
 export default function SignInPage() {
   return (

@@ -9,11 +9,39 @@ import { EyebrowTag } from "@/components/EyebrowTag";
 import { HeroHeadline } from "@/components/HeroHeadline";
 import { Hero } from "@/components/landing/Hero";
 import { FaqAccordion } from "@/components/landing/FaqAccordion";
+import { StaggerChildren, StaggerItem } from "@/components/landing/SectionStagger";
+import { buildMetadata, SITE_NAME, SITE_URL } from "@/lib/seo";
 
-export const metadata = {
-  title: "Crossbook — HubSpot ↔ QuickBooks reconciliation, $49/mo",
+export const metadata = buildMetadata({
   description:
     "Drop two CSVs. AI explains every conflict in plain English with source-row citations. First report free. $49/month vs. HubSpot Data Hub Professional at $720/seat/month.",
+  path: "/",
+});
+
+const softwareApplicationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: SITE_NAME,
+  applicationCategory: "BusinessApplication",
+  applicationSubCategory: "RevenueOperations",
+  operatingSystem: "Web",
+  url: SITE_URL,
+  description:
+    "AI-assisted reconciliation between HubSpot Deals and QuickBooks Customers/Invoices. Drop two CSVs, get a plain-English report with source-row citations.",
+  offers: {
+    "@type": "Offer",
+    price: "49",
+    priceCurrency: "USD",
+    priceSpecification: {
+      "@type": "UnitPriceSpecification",
+      price: "49",
+      priceCurrency: "USD",
+      billingIncrement: 1,
+      unitCode: "MON",
+    },
+    availability: "https://schema.org/InStock",
+    url: `${SITE_URL}/pricing`,
+  },
 };
 
 export default function Home() {
@@ -31,6 +59,10 @@ export default function Home() {
         <FinalCta />
       </main>
       <SiteFooter />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationJsonLd) }}
+      />
     </>
   );
 }
@@ -86,18 +118,18 @@ function HowItWorks() {
           className="max-w-[680px]"
         />
       </div>
-      <div className="grid md:grid-cols-3 gap-px bg-hairline rounded-[14px] overflow-hidden border border-hairline">
+      <StaggerChildren className="grid md:grid-cols-3 gap-px bg-hairline rounded-[14px] overflow-hidden border border-hairline">
         {steps.map((step) => (
-          <div
+          <StaggerItem
             key={step.n}
-            className="bg-bg p-8 flex flex-col gap-3 transition-colors hover:bg-bg-tint/60"
+            className="bg-bg p-8 flex flex-col gap-3 transition-colors duration-200 ease-out hover:bg-bg-tint/60"
           >
             <span className="font-mono text-[12px] text-fg-muted tracking-wider">{step.n}</span>
             <h3 className="font-serif text-[24px] text-fg leading-tight">{step.title}</h3>
             <p className="text-[14px] text-fg-muted leading-relaxed">{step.body}</p>
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerChildren>
     </SectionShell>
   );
 }
@@ -133,17 +165,17 @@ function WhatsInside() {
           className="max-w-[680px]"
         />
       </div>
-      <div className="grid md:grid-cols-2 gap-4">
+      <StaggerChildren className="grid md:grid-cols-2 gap-4">
         {features.map((f) => (
-          <div
+          <StaggerItem
             key={f.title}
-            className="bg-bg border border-hairline rounded-[14px] p-7 flex flex-col gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lifted"
+            className="bg-bg border border-hairline rounded-[14px] p-7 flex flex-col gap-2 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-lifted will-change-transform"
           >
             <h3 className="font-serif text-[22px] text-fg leading-tight">{f.title}</h3>
             <p className="text-[14px] text-fg-muted leading-relaxed">{f.body}</p>
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerChildren>
     </SectionShell>
   );
 }
@@ -175,17 +207,17 @@ function AntiPositioning() {
           className="max-w-[680px]"
         />
       </div>
-      <div className="grid md:grid-cols-3 gap-4">
+      <StaggerChildren className="grid md:grid-cols-3 gap-4">
         {items.map((item) => (
-          <div
+          <StaggerItem
             key={item.title}
             className="bg-bg border border-hairline rounded-[14px] p-7 flex flex-col gap-2"
           >
             <h3 className="font-sans text-[15px] font-medium text-fg">{item.title}</h3>
             <p className="text-[14px] text-fg-muted leading-relaxed">{item.body}</p>
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerChildren>
     </SectionShell>
   );
 }
@@ -206,8 +238,8 @@ function PricingTeaser() {
         </p>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2 max-w-3xl mx-auto w-full">
-        <div className="bg-bg border border-hairline rounded-[14px] p-8 flex flex-col gap-5">
+      <StaggerChildren className="grid gap-5 md:grid-cols-2 max-w-3xl mx-auto w-full">
+        <StaggerItem className="bg-bg border border-hairline rounded-[14px] p-8 flex flex-col gap-5">
           <div className="flex flex-col gap-1">
             <span className="text-eyebrow">Free</span>
             <p className="font-serif text-[44px] text-fg leading-none">$0</p>
@@ -219,9 +251,9 @@ function PricingTeaser() {
             <li>· First 5 conflicts unblurred</li>
           </ul>
           <Link href="/upload"><Button variant="outline" className="w-full">Try it free</Button></Link>
-        </div>
+        </StaggerItem>
 
-        <div className="bg-bg border border-fg rounded-[14px] p-8 flex flex-col gap-5 relative shadow-lifted">
+        <StaggerItem className="bg-bg border border-fg rounded-[14px] p-8 flex flex-col gap-5 relative shadow-lifted">
           <span className="absolute -top-2.5 right-6 bg-fg text-bg text-eyebrow px-2.5 py-1 rounded-full">
             Recommended
           </span>
@@ -240,8 +272,8 @@ function PricingTeaser() {
             <li>· Corrected CSV export</li>
           </ul>
           <Link href="/pricing"><Button variant="default" className="w-full">See full pricing</Button></Link>
-        </div>
-      </div>
+        </StaggerItem>
+      </StaggerChildren>
     </SectionShell>
   );
 }
@@ -273,14 +305,14 @@ function TrustStrip() {
           className="max-w-[700px]"
         />
       </div>
-      <div className="grid md:grid-cols-3 gap-px bg-hairline rounded-[14px] overflow-hidden border border-hairline">
+      <StaggerChildren className="grid md:grid-cols-3 gap-px bg-hairline rounded-[14px] overflow-hidden border border-hairline">
         {items.map((it) => (
-          <div key={it.title} className="bg-bg p-7 flex flex-col gap-2">
+          <StaggerItem key={it.title} className="bg-bg p-7 flex flex-col gap-2">
             <h3 className="font-sans text-[15px] font-medium text-fg">{it.title}</h3>
             <p className="text-[14px] text-fg-muted leading-relaxed">{it.body}</p>
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerChildren>
       <p className="mt-8 text-center text-[13px] text-fg-muted">
         <Link href="/privacy" className="underline underline-offset-4 decoration-hairline hover:decoration-fg">Privacy Policy</Link>
         {" · "}

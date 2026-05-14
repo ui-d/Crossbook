@@ -1,10 +1,14 @@
 import Link from "next/link";
 
 import LegalShell from "@/components/LegalShell";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Data Processing Agreement — Crossbook",
-};
+export const metadata = buildMetadata({
+  title: "Data Processing Agreement",
+  description:
+    "Crossbook's DPA — subprocessor list, lawful basis, data retention, and your rights as a data controller under GDPR.",
+  path: "/dpa",
+});
 
 const LAST_UPDATED = "May 12, 2026";
 

@@ -10,6 +10,13 @@ import { SummaryCard } from "@/components/SummaryCard";
 import { Button } from "@/components/ui/button";
 import type { Delta } from "@/lib/delta-engine";
 import type { BuiltReport } from "@/lib/report-builder";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata = buildMetadata({
+  title: "Report",
+  description: "Your reconciliation report.",
+  noIndex: true,
+});
 
 type Decision =
   | "TRUST_HUBSPOT"

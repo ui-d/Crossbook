@@ -11,12 +11,15 @@ import {
 
 import SiteFooter from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
+import { StaggerChildren, StaggerItem } from "@/components/landing/SectionStagger";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "How it works — Crossbook",
+export const metadata = buildMetadata({
+  title: "How it works",
   description:
     "Drop two CSVs. Crossbook normalizes, fuzzy-matches, runs the pattern library, then calls Claude for novel conflicts. Output is a clear plain-English report you can act on.",
-};
+  path: "/how-it-works",
+});
 
 const STEPS = [
   {
@@ -91,30 +94,32 @@ export default function HowItWorksPage() {
         </section>
 
         <section className="max-w-[1200px] mx-auto px-6 pb-12">
-          <div className="grid md:grid-cols-3 gap-4 relative">
+          <div className="relative">
             <div className="hidden md:block absolute top-[68px] left-[14%] right-[14%] h-px bg-outline-variant" aria-hidden="true" />
-            {STEPS.map((step, i) => {
-              const Icon = step.icon;
-              return (
-                <div
-                  key={step.title}
-                  className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col gap-2 shadow-ambient"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="size-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-display font-bold text-[18px]">
-                      {i + 1}
+            <StaggerChildren className="grid md:grid-cols-3 gap-4">
+              {STEPS.map((step, i) => {
+                const Icon = step.icon;
+                return (
+                  <StaggerItem
+                    key={step.title}
+                    className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col gap-2 shadow-ambient"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="size-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-display font-bold text-[18px]">
+                        {i + 1}
+                      </div>
+                      <Icon className="size-5 text-on-surface-variant" />
                     </div>
-                    <Icon className="size-5 text-on-surface-variant" />
-                  </div>
-                  <span className="text-label-caps text-primary">{step.label}</span>
-                  <h3 className="font-display text-[20px] font-semibold text-on-surface">{step.title}</h3>
-                  <p className="text-[14px] text-on-surface-variant">{step.body}</p>
-                  <p className="text-[13px] text-on-surface-variant/80 mt-auto pt-2 border-t border-outline-variant">
-                    {step.detail}
-                  </p>
-                </div>
-              );
-            })}
+                    <span className="text-label-caps text-primary">{step.label}</span>
+                    <h3 className="font-display text-[20px] font-semibold text-on-surface">{step.title}</h3>
+                    <p className="text-[14px] text-on-surface-variant">{step.body}</p>
+                    <p className="text-[13px] text-on-surface-variant/80 mt-auto pt-2 border-t border-outline-variant">
+                      {step.detail}
+                    </p>
+                  </StaggerItem>
+                );
+              })}
+            </StaggerChildren>
           </div>
         </section>
 
@@ -126,18 +131,18 @@ export default function HowItWorksPage() {
                 Built so you never have to second-guess it
               </h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-4">
+            <StaggerChildren className="grid md:grid-cols-3 gap-4">
               {TRUST.map((t) => {
                 const Icon = t.icon;
                 return (
-                  <div key={t.title} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col gap-2">
+                  <StaggerItem key={t.title} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col gap-2">
                     <Icon className="size-6 text-primary" />
                     <h3 className="font-display text-[16px] font-semibold text-on-surface">{t.title}</h3>
                     <p className="text-[14px] text-on-surface-variant">{t.body}</p>
-                  </div>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </StaggerChildren>
           </div>
         </section>
 
@@ -148,14 +153,14 @@ export default function HowItWorksPage() {
               What we&apos;re not
             </h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-4">
+          <StaggerChildren className="grid md:grid-cols-3 gap-4">
             {ANTI.map((item) => (
-              <div key={item.title} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col gap-1">
+              <StaggerItem key={item.title} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col gap-1">
                 <h3 className="font-display text-[16px] font-semibold text-on-surface">{item.title}</h3>
                 <p className="text-[14px] text-on-surface-variant">{item.body}</p>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerChildren>
         </section>
 
         <section className="max-w-[1200px] mx-auto px-6 pb-12">

@@ -14,10 +14,14 @@ import {
 
 import AppShell from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Dashboard — Crossbook",
-};
+export const metadata = buildMetadata({
+  title: "Dashboard",
+  description: "Your report history and monthly delta summary.",
+  path: "/dashboard",
+  noIndex: true,
+});
 
 function adminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

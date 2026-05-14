@@ -2,11 +2,14 @@ import SiteFooter from "@/components/SiteFooter";
 import PlanCards from "@/components/PlanCards";
 import { auth } from "@clerk/nextjs/server";
 
-export const metadata = {
-  title: "Pricing — Crossbook",
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata = buildMetadata({
+  title: "Pricing",
   description:
     "Free for the first report. $49/month for unlimited reports, monthly delta tracking, and corrected CSV export. 93% cheaper than HubSpot Data Hub Pro.",
-};
+  path: "/pricing",
+});
 
 const FAQS = [
   {

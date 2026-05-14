@@ -2,12 +2,14 @@ import { FileSpreadsheet } from "lucide-react";
 
 import AppShell from "@/components/AppShell";
 import { UploadZone } from "@/components/UploadZone";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "New report — Crossbook",
+export const metadata = buildMetadata({
+  title: "New report",
   description:
-    "Drop two CSVs. AI explains every conflict in plain English with source-row citations.",
-};
+    "Drop your HubSpot Deals CSV and QuickBooks Customers/Invoices CSV. AI explains every conflict in plain English with source-row citations. First report free.",
+  path: "/upload",
+});
 
 export default function UploadPage() {
   return (

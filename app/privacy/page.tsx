@@ -1,10 +1,14 @@
 import Link from "next/link";
 
 import LegalShell from "@/components/LegalShell";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Privacy Policy — Crossbook",
-};
+export const metadata = buildMetadata({
+  title: "Privacy Policy",
+  description:
+    "How Crossbook collects, processes, and retains your data. CSV files are deleted after 30 days. GDPR-compliant. DPA available.",
+  path: "/privacy",
+});
 
 const LAST_UPDATED = "May 12, 2026";
 
