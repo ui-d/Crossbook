@@ -34,13 +34,12 @@ export function SectionShell({
       {...rest}
     >
       <motion.div
-        // Content is fully visible by default; whileInView only adds a subtle
-        // slide-up. This survives full-page screenshots and scroll restoration
-        // (where IntersectionObserver may not fire reliably).
-        initial={shouldAnimate ? { y: 18 } : false}
-        whileInView={shouldAnimate ? { y: 0 } : undefined}
-        viewport={{ once: true, amount: 0.05 }}
-        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        // SSR/no-JS shows content fully visible; the JS-only `shouldAnimate`
+        // gate keeps reveals from getting stuck off-screen on scroll restoration.
+        initial={shouldAnimate ? { opacity: 0, y: 18 } : false}
+        whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className={cn("mx-auto w-full max-w-[1120px] px-6 py-20 md:py-24", inner)}
       >
         {children}

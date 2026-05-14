@@ -25,12 +25,12 @@ interface DemoRow {
 }
 
 const STAGE_TIMINGS: Record<Stage, number> = {
-  0: 600,   // rows fade in
-  1: 900,   // HIGH pulse + expand row 1
-  2: 1100,  // Trust HubSpot auto-press
-  3: 1300,  // counters tick + row strikes through
-  4: 1500,  // filter chip auto-selects + collapse currency rows
-  5: 1400,  // pause before restart
+  0: 800,   // rows fade in (3 rows * 120ms stagger + 400ms duration = ~760ms)
+  1: 1100,  // HIGH pulse + expand row 1
+  2: 1400,  // Trust HubSpot auto-press (700ms press + breathing room)
+  3: 1600,  // counters tick (500ms) + row strikes through + bg fades to success
+  4: 1700,  // filter chip pulse + currency row collapse exit (350ms)
+  5: 1500,  // pause before restart
 };
 
 export function InteractiveSample() {
@@ -129,7 +129,11 @@ export function InteractiveSample() {
         initial={false}
         animate={reduce ? undefined : { rotateX: paused ? 0 : 1.5, rotateY: paused ? 0 : -0.8 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        style={{ transformStyle: "preserve-3d", perspective: 1200 }}
+        style={{
+          transformStyle: "preserve-3d",
+          perspective: 1200,
+          willChange: reduce || paused ? "auto" : "transform",
+        }}
         className="bg-bg/85 backdrop-blur-md border border-hairline rounded-[18px] shadow-lifted overflow-hidden"
       >
         {/* Window chrome */}
@@ -178,17 +182,18 @@ export function InteractiveSample() {
         {/* Rows */}
         <div className="divide-y divide-hairline">
           <AnimatePresence initial={false}>
-            {rows.map((row, i) => (
-              <DemoRowItem
-                key={row.id}
-                row={row}
-                index={i}
-                stage={stage}
-                decided={decided[row.id] ?? null}
-                onDecide={handleDecision}
-                hidden={filterOn && row.conflictLabel === "Currency"}
-              />
-            ))}
+            {rows
+              .filter((row) => !(filterOn && row.conflictLabel === "Currency"))
+              .map((row, i) => (
+                <DemoRowItem
+                  key={row.id}
+                  row={row}
+                  index={i}
+                  stage={stage}
+                  decided={decided[row.id] ?? null}
+                  onDecide={handleDecision}
+                />
+              ))}
           </AnimatePresence>
 
           {/* Collapsed currency summary */}
@@ -302,33 +307,27 @@ function DemoRowItem({
   stage,
   decided,
   onDecide,
-  hidden,
 }: {
   row: DemoRow;
   index: number;
   stage: Stage;
   decided: "TRUST_HUBSPOT" | "TRUST_QBO" | "IGNORE" | null;
   onDecide: (rowId: string, decision: "TRUST_HUBSPOT" | "TRUST_QBO" | "IGNORE") => void;
-  hidden: boolean;
 }) {
   const isFirst = row.id === "r1";
   const showExpanded = isFirst && stage >= 1;
   const isPulsing = isFirst && stage === 1;
   const isResolved = decided !== null;
 
-  if (hidden) {
-    return null;
-  }
-
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, height: 0 }}
+      exit={{ opacity: 0, height: 0, marginTop: 0, paddingTop: 0, paddingBottom: 0 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: index * 0.12 }}
       className={cn(
-        "px-5 py-4 flex flex-col gap-3 bg-bg transition-colors",
+        "px-5 py-4 flex flex-col gap-3 bg-bg transition-colors overflow-hidden",
         isResolved && "bg-success-soft/40",
       )}
     >
