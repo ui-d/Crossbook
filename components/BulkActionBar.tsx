@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { Layers, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { track } from "@/lib/analytics";
 import { saveBulkDecisionsAction } from "@/lib/decisions";
 import type { ReportConflict } from "@/lib/report-builder";
 
@@ -57,6 +58,10 @@ export function BulkActionBar({
       if (result.ok) {
         onCommit(ids, decision);
         onSelect(new Set());
+        track("decision_saved", {
+          decision_type: decision,
+          was_bulk: true,
+        });
       }
     });
   };

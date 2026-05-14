@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { CheckCircle2, Check, ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { track } from "@/lib/analytics";
 
 const FREE_FEATURES = [
   "1 report per email",
@@ -103,14 +106,18 @@ export default function PlanCards({
 
         <div className="mt-auto">
           {proAction.kind === "link" ? (
-            <Link href={proAction.href}>
+            <Link href={proAction.href} onClick={() => track("checkout_started", {})}>
               <Button variant="cta" size="lg" className="w-full gap-2">
                 {proAction.label}
                 <ArrowRight className="size-4" />
               </Button>
             </Link>
           ) : (
-            <form action={proAction.formAction} method="POST">
+            <form
+              action={proAction.formAction}
+              method="POST"
+              onSubmit={() => track("checkout_started", {})}
+            >
               <Button type="submit" variant="cta" size="lg" className="w-full gap-2">
                 {proAction.label}
                 <ArrowRight className="size-4" />

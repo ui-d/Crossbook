@@ -7,6 +7,7 @@ import { ArrowRight, FileSpreadsheet, ShieldCheck, UploadCloud } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { bucketRowCount, track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
@@ -48,6 +49,20 @@ const countApproxRows = async (file: File): Promise<number> => {
     if (text.charCodeAt(i) === 10) newlines++;
   }
   return Math.max(0, newlines - 1);
+};
+
+const readErrorMessage = async (response: Response): Promise<string> => {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    try {
+      const data = (await response.json()) as { error?: string };
+      if (data?.error) return data.error;
+    } catch {
+      // fall through to text
+    }
+  }
+  const text = await response.text().catch(() => "");
+  return text || `Server returned ${response.status}.`;
 };
 
 const validateFile = (file: File): string | null => {
@@ -149,6 +164,12 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
         serverMessage: null,
       }));
 
+      track("upload_started", {});
+
+      const totalRows =
+        (state.hubspot?.approxRowCount ?? 0) +
+        (state.quickbooks?.approxRowCount ?? 0);
+
       const formData = new FormData();
       formData.append("hubspot_file", state.hubspot.file);
       formData.append("quickbooks_file", state.quickbooks.file);
@@ -160,14 +181,26 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
           body: formData,
         });
         if (!response.ok) {
-          const text = await response.text();
+          const message = await readErrorMessage(response);
+          if (response.status === 422) {
+            setState((s) => ({
+              ...s,
+              status: "error",
+              emailError: message,
+              serverMessage: null,
+            }));
+            return;
+          }
           setState((s) => ({
             ...s,
             status: "error",
-            serverMessage: text || `Server returned ${response.status}.`,
+            serverMessage: message,
           }));
           return;
         }
+        track("upload_completed", {
+          row_count_bucket: bucketRowCount(totalRows),
+        });
         const data = (await response.json()) as { id?: string; redirect?: string };
         if (data.redirect) {
           window.location.href = data.redirect;

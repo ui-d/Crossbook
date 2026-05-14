@@ -3,6 +3,7 @@
 import { Download, FileSpreadsheet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { track } from "@/lib/analytics";
 
 interface ExportButtonsProps {
   reportId: string;
@@ -36,19 +37,34 @@ export function ExportButtons({
       </header>
       <div className="flex flex-wrap gap-2">
         <Button asChild disabled={disabled} variant="cta">
-          <a href={`${base}?side=hubspot`} download className="gap-2">
+          <a
+            href={`${base}?side=hubspot`}
+            download
+            className="gap-2"
+            onClick={() => track("export_csv_clicked", { side: "hubspot" })}
+          >
             <FileSpreadsheet className="size-4" />
             HubSpot CSV
           </a>
         </Button>
         <Button asChild disabled={disabled} variant="cta">
-          <a href={`${base}?side=quickbooks`} download className="gap-2">
+          <a
+            href={`${base}?side=quickbooks`}
+            download
+            className="gap-2"
+            onClick={() => track("export_csv_clicked", { side: "quickbooks" })}
+          >
             <FileSpreadsheet className="size-4" />
             QuickBooks CSV
           </a>
         </Button>
         <Button asChild variant="outline">
-          <a href={`${base}?side=summary`} download className="gap-2">
+          <a
+            href={`${base}?side=summary`}
+            download
+            className="gap-2"
+            onClick={() => track("export_csv_clicked", { side: "summary" })}
+          >
             <FileSpreadsheet className="size-4" />
             Summary CSV
           </a>

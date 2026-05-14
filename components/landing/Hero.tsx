@@ -18,7 +18,7 @@ export function Hero() {
   });
 
   return (
-    <section className="relative w-full overflow-hidden">
+    <section className="relative w-full overflow-hidden" data-landing-section="hero">
       {/* whisper-light radial halo */}
       <div
         aria-hidden

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 
+import { captureServerEvent } from "@/lib/analytics-server";
 import { STRIPE_WEBHOOK_SECRET, stripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
@@ -63,12 +64,27 @@ async function handleCheckoutCompleted(
   session: Stripe.Checkout.Session,
 ): Promise<void> {
   const reportId = session.metadata?.report_id?.trim();
-  if (!reportId) return;
-  const admin = supabaseAdmin();
-  await admin
-    .from("reports")
-    .update({ is_paid: true })
-    .eq("id", reportId);
+  if (reportId) {
+    const admin = supabaseAdmin();
+    await admin
+      .from("reports")
+      .update({ is_paid: true })
+      .eq("id", reportId);
+  }
+
+  const distinctId =
+    (session.metadata?.clerk_user_id ?? session.client_reference_id ?? "").trim();
+  const subscriptionId =
+    typeof session.subscription === "string"
+      ? session.subscription
+      : session.subscription?.id ?? "";
+  if (distinctId) {
+    await captureServerEvent({
+      event: "checkout_completed",
+      distinct_id: distinctId,
+      properties: { stripe_subscription_id: subscriptionId },
+    });
+  }
 }
 
 export async function POST(req: NextRequest): Promise<Response> {

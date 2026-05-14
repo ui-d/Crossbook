@@ -51,6 +51,7 @@ CSV-in / plain-English-out **HubSpot ↔ QuickBooks reconciliation** for SMB Rev
 | UI | shadcn/ui (new-york / neutral) primitives + Tailwind v4 (`@tailwindcss/postcss`) + `motion` 12.38 + `tw-animate-css` 1.3 + lucide-react |
 | Typography | next/font/google: **Geist Sans + Geist Mono + Instrument Serif** (editorial pairing — replaced earlier Inter/Plus Jakarta combo during the May 12 redesign) |
 | Email | Resend 6.12 — wired into the digest cron + GDPR delete-confirm flow |
+| Analytics | **PostHog** (`posthog-js` 1.x) — initialized only when `NEXT_PUBLIC_POSTHOG_KEY` is set (graceful no-op otherwise). Identifies on Clerk `user_id`; never email or PII. Conversion events sampled at 100%, view events at 10%. `checkout_completed` is captured server-side from the Stripe webhook via `lib/analytics-server.ts` (direct `fetch` to PostHog `/capture/`). |
 | Cron | **Vercel cron (`vercel.json`)** — daily 14:00 UTC for `/api/cron/monthly-digest`, daily 03:00 UTC for `/api/cron/file-retention-sweep`. (Brief originally specified Supabase Edge Functions; Vercel cron chosen for proximity to the Next.js handlers and shared env-var scope.) |
 | Testing | Vitest 4.1 + `@vitest/coverage-v8` (≥80% threshold scoped to `lib/`) |
 | Tooling | `tsx` for eval scripts + Resend smoke test, ESLint 9, `supabase` CLI |

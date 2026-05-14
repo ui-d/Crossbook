@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { InteractiveSample } from "@/components/InteractiveSample";
+import { LandingViewTracker } from "@/components/LandingViewTracker";
 import SiteFooter from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { SectionShell } from "@/components/SectionShell";
@@ -47,6 +48,7 @@ const softwareApplicationJsonLd = {
 export default function Home() {
   return (
     <>
+      <LandingViewTracker />
       <main className="flex-1 flex flex-col">
         <Hero />
         <LiveWorkspace />
@@ -69,7 +71,7 @@ export default function Home() {
 
 function LiveWorkspace() {
   return (
-    <SectionShell tint inner="!pt-12 md:!pt-16 !pb-20 md:!pb-24">
+    <SectionShell tint inner="!pt-12 md:!pt-16 !pb-20 md:!pb-24" data-landing-section="live_workspace">
       <div className="flex flex-col items-center text-center gap-3 mb-10">
         <EyebrowTag>Live workspace</EyebrowTag>
         <HeroHeadline
@@ -108,7 +110,7 @@ function HowItWorks() {
   ];
 
   return (
-    <SectionShell>
+    <SectionShell data-landing-section="how_it_works">
       <div className="flex flex-col items-center text-center gap-3 mb-14">
         <EyebrowTag>How it works</EyebrowTag>
         <HeroHeadline
@@ -155,7 +157,7 @@ function WhatsInside() {
   ];
 
   return (
-    <SectionShell tint>
+    <SectionShell tint data-landing-section="whats_inside">
       <div className="flex flex-col items-center text-center gap-3 mb-14">
         <EyebrowTag>What’s inside</EyebrowTag>
         <HeroHeadline
@@ -197,7 +199,7 @@ function AntiPositioning() {
   ];
 
   return (
-    <SectionShell>
+    <SectionShell data-landing-section="anti_positioning">
       <div className="flex flex-col items-center text-center gap-3 mb-14">
         <EyebrowTag>Positioning</EyebrowTag>
         <HeroHeadline
@@ -224,7 +226,7 @@ function AntiPositioning() {
 
 function PricingTeaser() {
   return (
-    <SectionShell tint>
+    <SectionShell tint data-landing-section="pricing_teaser">
       <div className="flex flex-col items-center text-center gap-3 mb-14">
         <EyebrowTag>Pricing</EyebrowTag>
         <HeroHeadline
@@ -295,7 +297,7 @@ function TrustStrip() {
   ];
 
   return (
-    <SectionShell>
+    <SectionShell data-landing-section="trust">
       <div className="flex flex-col items-center text-center gap-3 mb-14">
         <EyebrowTag>Trust</EyebrowTag>
         <HeroHeadline
@@ -348,7 +350,7 @@ function Faq() {
     },
   ];
   return (
-    <SectionShell tint>
+    <SectionShell tint data-landing-section="faq">
       <div className="flex flex-col items-center text-center gap-3 mb-12">
         <EyebrowTag>FAQ</EyebrowTag>
         <HeroHeadline
@@ -367,7 +369,7 @@ function Faq() {
 
 function FinalCta() {
   return (
-    <SectionShell inner="!py-24 md:!py-32">
+    <SectionShell inner="!py-24 md:!py-32" data-landing-section="final_cta">
       <div className="flex flex-col items-center text-center gap-6">
         <HeroHeadline
           as="h2"

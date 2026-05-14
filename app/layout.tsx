@@ -3,6 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 
 import Navbar from "@/components/Navbar";
+import { PostHogProvider } from "@/components/PostHogProvider";
 import {
   DEFAULT_DESCRIPTION,
   DEFAULT_KEYWORDS,
@@ -100,18 +101,20 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} min-h-screen flex flex-col bg-bg text-fg antialiased`}
-        >
-          <Navbar />
-          <div className="flex-1 flex flex-col">{children}</div>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-          />
-        </body>
-      </html>
+      <PostHogProvider>
+        <html lang="en">
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} min-h-screen flex flex-col bg-bg text-fg antialiased`}
+          >
+            <Navbar />
+            <div className="flex-1 flex flex-col">{children}</div>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+            />
+          </body>
+        </html>
+      </PostHogProvider>
     </ClerkProvider>
   );
 }

@@ -6,6 +6,7 @@ import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SourceCitation } from "@/components/SourceCitation";
+import { track } from "@/lib/analytics";
 import { formatAmount, type ReportConflict } from "@/lib/report-builder";
 import { cn } from "@/lib/utils";
 
@@ -67,6 +68,10 @@ export function ConflictRow({
       });
       if (res.ok) {
         setDecision(next);
+        track("decision_saved", {
+          decision_type: next,
+          was_bulk: false,
+        });
       } else {
         setError(res.error ?? "Failed to save decision.");
       }
