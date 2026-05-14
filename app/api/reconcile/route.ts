@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { analyzePairs } from "@/lib/claude";
 import { findCandidatePairs } from "@/lib/conflict-scorer";
+import { validateEmailForFreeReport } from "@/lib/email-validation";
 import {
   parseHubSpotCsv,
   parseQuickBooksCsv,
@@ -247,6 +248,17 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     const { userId } = await auth();
     const isSubscribed = await userHasActiveSubscription(supabase, userId);
+
+    if (!isSubscribed) {
+      const emailCheck = validateEmailForFreeReport(email);
+      if (!emailCheck.valid) {
+        return NextResponse.json(
+          { error: emailCheck.reason },
+          { status: 422 },
+        );
+      }
+    }
+
     const priorUsage = isSubscribed ? 0 : await getFreeUsage(supabase, email);
     const isPaid = isSubscribed || priorUsage === 0;
     const priorReportId = await findPriorReportId(supabase, email, userId);
