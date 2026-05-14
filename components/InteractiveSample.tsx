@@ -82,7 +82,7 @@ export function InteractiveSample() {
 
   // Counters tied to current stage
   const conflicts = stage >= 3 ? (filterOn ? 34 : 46) : 47;
-  const amountAtRisk = stage >= 3 ? 41_800 : 43_200;
+  const amountAtRisk = stage >= 3 ? 40_439 : 41_847;
   const highPriority = stage >= 3 ? 7 : 8;
 
   // Loop driver
