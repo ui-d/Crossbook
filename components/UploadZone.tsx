@@ -230,6 +230,32 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <div
+        role="note"
+        aria-label="Privacy and data handling notice"
+        className="flex gap-3 bg-surface-container border border-outline-variant rounded-lg p-4 text-[13px] text-on-surface-variant"
+      >
+        <ShieldCheck className="size-5 text-primary shrink-0 mt-0.5" />
+        <div className="flex flex-col gap-1">
+          <p className="font-medium text-on-surface">Before you upload</p>
+          <ul className="flex flex-col gap-1 list-disc pl-4 marker:text-on-surface-variant">
+            <li>
+              By uploading, you confirm you have authority to share this CSV data and accept our{" "}
+              <a className="text-primary hover:underline" href="/privacy">
+                Privacy Policy
+              </a>
+              .
+            </li>
+            <li>
+              CSV files are deleted after 30 days. Report summaries are kept while your account is active.
+            </li>
+            <li>
+              We email your report to the address you enter below. We don&apos;t share or sell it.
+            </li>
+          </ul>
+        </div>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2">
         <DropTarget
           slot="hubspot"
@@ -287,16 +313,6 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
         {state.emailError ? (
           <p className="text-error text-[13px]">{state.emailError}</p>
         ) : null}
-      </div>
-
-      <div className="flex items-center gap-2 bg-surface-container border border-outline-variant rounded-lg p-4 text-[13px] text-on-surface-variant">
-        <ShieldCheck className="size-4 text-primary shrink-0" />
-        <span>
-          Your CSV files are deleted after 30 days. Reports are kept while your account is active.{" "}
-          <a className="text-primary hover:underline" href="/privacy">
-            Privacy Policy
-          </a>
-        </span>
       </div>
 
       <div className="flex flex-wrap items-center gap-4">

@@ -10,21 +10,32 @@ const FOOTER_LINKS: { href: string; label: string }[] = [
 export default function SiteFooter() {
   return (
     <footer className="border-t border-hairline bg-bg mt-auto">
-      <div className="max-w-[1120px] mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p className="text-[13px] text-fg-muted">
-          Crossbook · © {new Date().getFullYear()} · Reconciliation in plain English.
+      <div className="max-w-[1120px] mx-auto px-6 py-10 flex flex-col gap-4">
+        <p className="text-[13px] text-fg-muted text-center md:text-left">
+          Questions?{" "}
+          <a
+            href="mailto:support@crossbook.app"
+            className="text-fg hover:underline"
+          >
+            support@crossbook.app
+          </a>
         </p>
-        <nav className="flex flex-wrap justify-center gap-5">
-          {FOOTER_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-[13px] text-fg-muted hover:text-fg transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-[13px] text-fg-muted">
+            Crossbook · © {new Date().getFullYear()} · Reconciliation in plain English.
+          </p>
+          <nav className="flex flex-wrap justify-center gap-5">
+            {FOOTER_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-[13px] text-fg-muted hover:text-fg transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </div>
     </footer>
   );
