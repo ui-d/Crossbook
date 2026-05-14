@@ -25,6 +25,12 @@ const AUTH_LINKS: NavLink[] = [
   { href: "/pricing", label: "Pricing", matchPrefixes: ["/pricing", "/subscription"] },
 ];
 
+const APP_SHELL_PREFIXES = ["/dashboard", "/upload", "/report", "/subscription"];
+
+function isAppShellRoute(pathname: string): boolean {
+  return APP_SHELL_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
 function isActive(pathname: string, link: NavLink): boolean {
   if (link.matchPrefixes) {
     return link.matchPrefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -65,6 +71,7 @@ function Wordmark() {
 const Navbar = () => {
   const pathname = usePathname() ?? "/";
   const [scrolled, setScrolled] = useState(false);
+  const minimal = isAppShellRoute(pathname);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -83,18 +90,20 @@ const Navbar = () => {
       <div className="flex justify-between items-center w-full px-6 py-3 max-w-[1200px] mx-auto gap-4">
         <div className="flex items-center gap-6">
           <Wordmark />
-          <nav className="hidden md:flex items-center gap-1">
-            <SignedOut>
-              {PUBLIC_LINKS.map((link) => (
-                <NavItem key={link.href} link={link} active={isActive(pathname, link)} />
-              ))}
-            </SignedOut>
-            <SignedIn>
-              {AUTH_LINKS.map((link) => (
-                <NavItem key={link.href} link={link} active={isActive(pathname, link)} />
-              ))}
-            </SignedIn>
-          </nav>
+          {!minimal && (
+            <nav className="hidden md:flex items-center gap-1">
+              <SignedOut>
+                {PUBLIC_LINKS.map((link) => (
+                  <NavItem key={link.href} link={link} active={isActive(pathname, link)} />
+                ))}
+              </SignedOut>
+              <SignedIn>
+                {AUTH_LINKS.map((link) => (
+                  <NavItem key={link.href} link={link} active={isActive(pathname, link)} />
+                ))}
+              </SignedIn>
+            </nav>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -102,14 +111,18 @@ const Navbar = () => {
             <SignInButton mode="modal">
               <Button variant="ghost" size="sm">Sign in</Button>
             </SignInButton>
-            <Link href="/upload">
-              <Button variant="default" size="sm">Try free</Button>
-            </Link>
+            {!minimal && (
+              <Link href="/upload">
+                <Button variant="default" size="sm">Try free</Button>
+              </Link>
+            )}
           </SignedOut>
           <SignedIn>
-            <Link href="/upload" className="hidden sm:inline-flex">
-              <Button variant="default" size="sm">New report</Button>
-            </Link>
+            {!minimal && (
+              <Link href="/upload" className="hidden sm:inline-flex">
+                <Button variant="default" size="sm">New report</Button>
+              </Link>
+            )}
             <UserButton
               appearance={{
                 elements: {

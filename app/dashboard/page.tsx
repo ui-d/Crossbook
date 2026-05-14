@@ -9,6 +9,7 @@ import {
   Wallet,
   ArrowRight,
   ChevronRight,
+  X,
 } from "lucide-react";
 
 import AppShell from "@/components/AppShell";
@@ -63,13 +64,23 @@ function StatusBadge({ status }: { status: string | null }) {
   );
 }
 
-export default async function DashboardPage() {
+interface DashboardSearchParams {
+  filter?: string;
+}
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<DashboardSearchParams>;
+}) {
   const { userId } = await auth();
   if (!userId) {
     redirect("/sign-in?redirect_url=/dashboard");
   }
   const user = await currentUser();
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
+  const { filter } = await searchParams;
+  const highOnly = filter === "high";
 
   const supabase = adminClient();
 
@@ -83,25 +94,25 @@ export default async function DashboardPage() {
     .limit(50)
     .returns<ReportListRow[]>();
 
-  const list = reports ?? [];
-  const totalReports = list.length;
-  const totalConflicts = list.reduce((sum, r) => sum + (r.total_conflicts ?? 0), 0);
-  const highPriorityTotal = list.reduce((sum, r) => sum + (r.high_priority_conflicts ?? 0), 0);
-  const totalAtRiskCents = list.reduce((sum, r) => sum + (r.total_amount_at_risk_cents ?? 0), 0);
+  const allReports = reports ?? [];
+  const totalReports = allReports.length;
+  const totalConflicts = allReports.reduce((sum, r) => sum + (r.total_conflicts ?? 0), 0);
+  const highPriorityTotal = allReports.reduce(
+    (sum, r) => sum + (r.high_priority_conflicts ?? 0),
+    0,
+  );
+  const totalAtRiskCents = allReports.reduce(
+    (sum, r) => sum + (r.total_amount_at_risk_cents ?? 0),
+    0,
+  );
+  const list = highOnly
+    ? allReports.filter((r) => (r.high_priority_conflicts ?? 0) > 0)
+    : allReports;
 
   return (
     <AppShell
       title="Dashboard"
-      subtitle={
-        email ? `Signed in as ${email} — every report you've run, with month-over-month deltas.` : undefined
-      }
-      actions={
-        <Link href="/upload">
-          <Button variant="cta" size="lg" className="gap-2">
-            <FileUp className="size-4" /> New report
-          </Button>
-        </Link>
-      }
+      subtitle="Every reconciliation you've run. Click a row to reopen."
     >
       <section className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
@@ -121,6 +132,8 @@ export default async function DashboardPage() {
           value={String(highPriorityTotal)}
           icon={<TrendingUp className="size-5" />}
           accent="primary"
+          href={highOnly ? "/dashboard" : "/dashboard?filter=high"}
+          active={highOnly}
         />
         <MetricCard
           label="Amount at risk"
@@ -131,17 +144,31 @@ export default async function DashboardPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <div className="flex items-end justify-between">
+        <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
             <h2 className="font-display text-[20px] font-semibold text-on-surface">Recent reports</h2>
             <p className="text-[13px] text-on-surface-variant">
-              Latest 50 reports. Click any row to open the full reconciliation.
+              {highOnly
+                ? `Filtered to reports with high-priority conflicts (${list.length} of ${totalReports}).`
+                : `Showing ${totalReports} most recent. Click any row to open the full reconciliation.`}
             </p>
           </div>
+          {highOnly && (
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-1 text-[13px] text-on-surface-variant hover:text-on-surface transition-colors"
+            >
+              <X className="size-4" /> Clear filter
+            </Link>
+          )}
         </div>
 
         {list.length === 0 ? (
-          <EmptyState />
+          highOnly ? (
+            <NoMatchesState />
+          ) : (
+            <EmptyState />
+          )
         ) : (
           <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
             <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-4 items-center px-6 py-2 border-b border-outline-variant bg-surface-container-low">
@@ -197,22 +224,56 @@ interface MetricCardProps {
   value: string;
   icon: React.ReactNode;
   accent: "default" | "primary";
+  href?: string;
+  active?: boolean;
 }
 
-function MetricCard({ label, value, icon, accent }: MetricCardProps) {
-  return (
-    <div
-      className={
-        accent === "primary"
-          ? "bg-primary-fixed border border-primary-container/30 rounded-xl p-4 flex flex-col gap-2 shadow-ambient"
-          : "bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex flex-col gap-2 shadow-ambient"
-      }
-    >
+function MetricCard({ label, value, icon, accent, href, active }: MetricCardProps) {
+  const base =
+    accent === "primary"
+      ? "bg-primary-fixed border border-primary-container/30 rounded-xl p-4 flex flex-col gap-2 shadow-ambient"
+      : "bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex flex-col gap-2 shadow-ambient";
+  const interactive = href
+    ? "transition-all hover:shadow-md hover:-translate-y-px focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    : "";
+  const activeRing = active ? "ring-2 ring-primary ring-offset-2 ring-offset-bg" : "";
+  const className = [base, interactive, activeRing].filter(Boolean).join(" ");
+
+  const body = (
+    <>
       <div className="flex items-center justify-between">
         <span className="text-label-caps text-on-surface-variant">{label}</span>
         <span className={accent === "primary" ? "text-primary" : "text-on-surface-variant"}>{icon}</span>
       </div>
       <div className="font-display text-[28px] font-bold text-on-surface tabular-nums">{value}</div>
+      {href && (
+        <span className="text-[12px] text-on-surface-variant">
+          {active ? "Showing only these" : "Click to filter"}
+        </span>
+      )}
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={className} aria-pressed={active ? "true" : "false"}>
+        {body}
+      </Link>
+    );
+  }
+  return <div className={className}>{body}</div>;
+}
+
+function NoMatchesState() {
+  return (
+    <div className="bg-surface-container-lowest border border-dashed border-outline-variant rounded-xl px-6 py-12 text-center flex flex-col items-center gap-3">
+      <p className="text-[14px] text-on-surface">No reports with high-priority conflicts.</p>
+      <Link
+        href="/dashboard"
+        className="text-[13px] text-primary hover:underline inline-flex items-center gap-1"
+      >
+        <X className="size-3.5" /> Clear filter
+      </Link>
     </div>
   );
 }

@@ -6,8 +6,6 @@ import {
   LayoutDashboard,
   FileUp,
   CreditCard,
-  ShieldCheck,
-  HelpCircle,
   type LucideIcon,
 } from "lucide-react";
 
@@ -25,11 +23,6 @@ const PRIMARY_LINKS: ShellLink[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/upload", label: "New report", icon: FileUp, matchPrefixes: ["/upload", "/report"] },
   { href: "/subscription", label: "Subscription", icon: CreditCard },
-];
-
-const SECONDARY_LINKS: ShellLink[] = [
-  { href: "/privacy", label: "Privacy", icon: ShieldCheck },
-  { href: "mailto:dawiddeveloper@gmail.com", label: "Help", icon: HelpCircle },
 ];
 
 function isActive(pathname: string, link: ShellLink): boolean {
@@ -73,19 +66,11 @@ export default function AppShell({ children, title, subtitle, actions }: AppShel
   return (
     <div className="flex flex-1 w-full max-w-[1200px] mx-auto">
       <aside className="hidden lg:flex flex-col w-60 shrink-0 border-r border-outline-variant bg-surface-container-low/40 px-4 py-6 gap-1">
-        <div className="px-3 pb-4">
-          <p className="text-label-caps text-on-surface-variant">Workspace</p>
-        </div>
         <nav className="flex flex-col gap-1">
           {PRIMARY_LINKS.map((link) => (
             <ShellNavItem key={link.href} link={link} active={isActive(pathname, link)} />
           ))}
         </nav>
-        <div className="mt-auto pt-4 border-t border-outline-variant flex flex-col gap-1">
-          {SECONDARY_LINKS.map((link) => (
-            <ShellNavItem key={link.href} link={link} active={isActive(pathname, link)} />
-          ))}
-        </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
