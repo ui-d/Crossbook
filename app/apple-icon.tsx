@@ -12,6 +12,7 @@ export default async function AppleIcon() {
     (
       <div
         style={{
+          position: "relative",
           width: "100%",
           height: "100%",
           display: "flex",
@@ -25,12 +26,21 @@ export default async function AppleIcon() {
           fontSize: 150,
           lineHeight: 1,
           letterSpacing: "-0.02em",
-          // Slight optical lift so the italic 'C' centers visually inside
-          // iOS's rounded-corner mask without the lower bowl appearing low.
-          paddingBottom: 12,
         }}
       >
         C
+        <div
+          style={{
+            position: "absolute",
+            height: 14,
+            width: 108,
+            background: "#0a0a0a",
+            borderRadius: 7,
+            left: "50%",
+            top: "50%",
+            transform: "translate(-54%, -50%)",
+          }}
+        />
       </div>
     ),
     {

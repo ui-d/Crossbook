@@ -28,6 +28,7 @@ export default async function OpenGraphImage() {
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div
             style={{
+              position: "relative",
               width: 44,
               height: 44,
               display: "flex",
@@ -35,14 +36,35 @@ export default async function OpenGraphImage() {
               justifyContent: "center",
               border: "1px solid #ebebeb",
               borderRadius: 10,
-              fontFamily: serifFamily,
-              fontStyle: "italic",
-              fontSize: 32,
-              lineHeight: 1,
-              paddingBottom: 4,
             }}
           >
-            C
+            <div
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: serifFamily,
+                fontStyle: "italic",
+                fontSize: 32,
+                lineHeight: 1,
+                transform: "translateY(-2px)",
+              }}
+            >
+              C
+              <div
+                style={{
+                  position: "absolute",
+                  height: 3,
+                  width: 26,
+                  background: "#0a0a0a",
+                  borderRadius: 2,
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(-54%, -50%)",
+                }}
+              />
+            </div>
           </div>
           <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: "-0.01em" }}>
             Crossbook

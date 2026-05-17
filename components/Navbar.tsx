@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { BrandMark } from "@/components/BrandMark";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -55,12 +56,7 @@ function NavItem({ link, active }: { link: NavLink; active: boolean }) {
 function Wordmark() {
   return (
     <Link href="/" className="inline-flex items-center gap-2 group">
-      <span
-        aria-hidden
-        className="inline-flex items-center justify-center size-7 rounded-[8px] bg-fg text-bg font-serif italic text-[14px] leading-none"
-      >
-        c
-      </span>
+      <BrandMark size={28} variant="inverted" />
       <span className="font-sans text-[15px] font-medium tracking-tight text-fg">
         Crossbook
       </span>

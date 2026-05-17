@@ -12,6 +12,7 @@ export default async function Icon() {
     (
       <div
         style={{
+          position: "relative",
           width: "100%",
           height: "100%",
           display: "flex",
@@ -22,12 +23,24 @@ export default async function Icon() {
           fontFamily: font ? "Instrument Serif" : "serif",
           fontStyle: "italic",
           fontWeight: 400,
-          fontSize: 30,
+          fontSize: 28,
           lineHeight: 1,
           letterSpacing: "-0.02em",
         }}
       >
         C
+        <div
+          style={{
+            position: "absolute",
+            height: 3,
+            width: 19,
+            background: "#0a0a0a",
+            borderRadius: 2,
+            left: "50%",
+            top: "50%",
+            transform: "translate(-54%, -50%)",
+          }}
+        />
       </div>
     ),
     {
