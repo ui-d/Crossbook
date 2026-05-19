@@ -19,6 +19,7 @@ import {
 } from "@/lib/delta-engine";
 import { normalizeRecords } from "@/lib/normalize-record";
 import { matchPatterns } from "@/lib/pattern-library";
+import { sendReportReadyEmail } from "@/lib/report-email";
 import { buildReport, type BuiltReport } from "@/lib/report-builder";
 
 export const runtime = "nodejs";
@@ -363,6 +364,22 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     if (!isSubscribed && priorUsage === 0) {
       await incrementFreeUsage(supabase, email);
+    }
+
+    // Deliver the report by email (the upload form promises this). Awaited so
+    // the serverless function is not frozen mid-send, but a failure here must
+    // never fail report creation — the report is also viewable in-browser.
+    const emailResult = await sendReportReadyEmail({
+      email,
+      reportId: inserted.id,
+      summary: report.summary,
+      requiresUpgrade: !isPaid,
+    });
+    if (emailResult.status !== "sent") {
+      console.error(
+        `/api/reconcile report email ${emailResult.status} for ${email}:`,
+        emailResult.error,
+      );
     }
 
     return NextResponse.json({
