@@ -175,7 +175,7 @@ export default async function DashboardPage({
           )
         ) : (
           <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
-            <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-4 items-center px-6 py-2 border-b border-outline-variant bg-surface-container-low">
+            <div className="hidden md:grid grid-cols-[minmax(0,1fr)_5rem_4rem_7rem_7rem_7rem] gap-4 items-center px-6 py-2 border-b border-outline-variant bg-surface-container-low">
               <span className="text-label-caps text-on-surface-variant">Files</span>
               <span className="text-label-caps text-on-surface-variant text-right">Conflicts</span>
               <span className="text-label-caps text-on-surface-variant text-right">High</span>
@@ -188,7 +188,7 @@ export default async function DashboardPage({
                 <li key={r.id}>
                   <Link
                     href={`/report/${r.id}`}
-                    className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto_auto_auto] gap-2 md:gap-4 items-center px-6 py-4 hover:bg-surface-container-low transition-colors"
+                    className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_5rem_4rem_7rem_7rem_7rem] gap-2 md:gap-4 items-center px-6 py-4 hover:bg-surface-container-low transition-colors"
                   >
                     <div className="flex flex-col gap-1 min-w-0">
                       <span className="font-mono text-[13px] text-on-surface truncate">
@@ -201,7 +201,13 @@ export default async function DashboardPage({
                     <span className="text-data-mono text-on-surface md:text-right">
                       {r.total_conflicts ?? 0}
                     </span>
-                    <span className="text-data-mono text-error md:text-right">
+                    <span
+                      className={`text-data-mono md:text-right ${
+                        (r.high_priority_conflicts ?? 0) > 0
+                          ? "text-error"
+                          : "text-on-surface-variant"
+                      }`}
+                    >
                       {r.high_priority_conflicts ?? 0}
                     </span>
                     <span className="text-data-mono text-on-surface md:text-right">
