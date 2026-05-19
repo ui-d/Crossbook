@@ -175,6 +175,43 @@ export function applyConfidenceFallback(result: AnalysisResult): AnalysisResult 
   return { ...result, conflicts };
 }
 
+/**
+ * Fixture-09 class of bug: when HubSpot and QuickBooks hold the SAME numeric
+ * amount in DIFFERENT currencies (e.g. EUR 8,500 vs USD 8,500), Claude tends to
+ * emit both a CURRENCY conflict (correct) and an AMOUNT conflict (spurious — the
+ * numbers are identical; only the currency differs). The AMOUNT conflict is a
+ * false positive and its amount_at_risk_cents double-counts the currency issue
+ * into the summary card. When the normalized amount_cents are equal and a
+ * CURRENCY conflict is present for the pair, drop the AMOUNT conflict(s).
+ *
+ * Deterministic and pure — does not rely on the model complying with a prompt.
+ * Amount equality is checked against normalized amount_cents (not Claude's
+ * formatted strings); when either side is null the amounts are not "equal" and
+ * the AMOUNT conflict is preserved.
+ */
+export function dedupeCurrencyAmountConflict(
+  result: AnalysisResult,
+  hubspotAmountCents: number | null,
+  quickbooksAmountCents: number | null,
+): AnalysisResult {
+  const hasCurrency = result.conflicts.some(
+    (c) => c.conflict_type === "CURRENCY",
+  );
+  const hasAmount = result.conflicts.some((c) => c.conflict_type === "AMOUNT");
+  if (!hasCurrency || !hasAmount) return result;
+
+  const amountsEqual =
+    hubspotAmountCents !== null &&
+    quickbooksAmountCents !== null &&
+    hubspotAmountCents === quickbooksAmountCents;
+  if (!amountsEqual) return result;
+
+  return {
+    ...result,
+    conflicts: result.conflicts.filter((c) => c.conflict_type !== "AMOUNT"),
+  };
+}
+
 export function parseClaudeJson(jsonText: string): AnalysisResult[] {
   const trimmed = jsonText.trim();
   const stripped = trimmed
@@ -226,7 +263,24 @@ export async function analyzeBatch(
   }
 
   const rawResults = parseClaudeJson(textBlock.text);
-  return rawResults.map(applyConfidenceFallback);
+  const amountByPair = new Map<number, { hs: number | null; qb: number | null }>(
+    inputs.map((input) => [
+      input.pair_index,
+      {
+        hs: input.hubspot_record?.amount_cents ?? null,
+        qb: input.quickbooks_record?.amount_cents ?? null,
+      },
+    ]),
+  );
+  return rawResults.map((result) => {
+    const amounts = amountByPair.get(result.pair_index);
+    const deduped = dedupeCurrencyAmountConflict(
+      result,
+      amounts?.hs ?? null,
+      amounts?.qb ?? null,
+    );
+    return applyConfidenceFallback(deduped);
+  });
 }
 
 async function runWithConcurrency<T, U>(

@@ -10,6 +10,7 @@ import {
   applyConfidenceFallback,
   buildBatch,
   chunk,
+  dedupeCurrencyAmountConflict,
   parseClaudeJson,
   type AnalysisResult,
 } from "./claude";
@@ -361,5 +362,107 @@ describe("analyzePairs (batching + concurrency)", () => {
     const results = await analyzePairs(pairs, new Set([0, 1]), { client });
     expect(results).toEqual([]);
     expect(mockCreate).not.toHaveBeenCalled();
+  });
+});
+
+describe("dedupeCurrencyAmountConflict (fixture 09 regression)", () => {
+  // Mirrors data/test-fixtures/09_* : TechCo GmbH booked EUR 8,500 in HubSpot
+  // and billed USD 8,500 in QuickBooks. Same numeric amount, different
+  // currency. Claude (buggy) emits AMOUNT + CURRENCY + EMAIL; only the spurious
+  // AMOUNT must be dropped.
+  const currencyConflict = {
+    field: "currency",
+    hubspot_value: "EUR",
+    hubspot_row_index: 0,
+    quickbooks_value: "USD",
+    quickbooks_row_index: 0,
+    explanation: "HubSpot records the deal in EUR but QuickBooks records it in USD.",
+    recommended_action: "MANUAL_REVIEW" as const,
+    priority: "HIGH" as const,
+    amount_at_risk_cents: null,
+    confidence: 0.9,
+    conflict_type: "CURRENCY" as const,
+  };
+  const emailConflict = {
+    field: "email",
+    hubspot_value: "sales@techco.de",
+    hubspot_row_index: 0,
+    quickbooks_value: "ap@techco.de",
+    quickbooks_row_index: 0,
+    explanation: "Contact email differs between the two records.",
+    recommended_action: "MANUAL_REVIEW" as const,
+    priority: "MEDIUM" as const,
+    amount_at_risk_cents: null,
+    confidence: 0.9,
+    conflict_type: "EMAIL" as const,
+  };
+  const spuriousAmountConflict = {
+    field: "amount",
+    hubspot_value: "850000",
+    hubspot_row_index: 0,
+    quickbooks_value: "850000",
+    quickbooks_row_index: 0,
+    explanation: "Both records show 850000 cents in different currencies.",
+    recommended_action: "MANUAL_REVIEW" as const,
+    priority: "HIGH" as const,
+    amount_at_risk_cents: 850000,
+    confidence: 0.9,
+    conflict_type: "AMOUNT" as const,
+  };
+  const buggyResult: AnalysisResult = {
+    pair_index: 0,
+    entity_match: true,
+    entity_match_confidence: 0.95,
+    conflicts: [spuriousAmountConflict, currencyConflict, emailConflict],
+  };
+
+  it("drops the spurious AMOUNT conflict end-to-end via analyzeBatch, keeping CURRENCY + EMAIL", async () => {
+    const fixture09Pair = buildPair({
+      hubspot_record: buildRecord({
+        source: "HUBSPOT",
+        company_name_raw: "TechCo GmbH",
+        amount_cents: 850000,
+        currency: "EUR",
+        email: "sales@techco.de",
+      }),
+      quickbooks_record: buildRecord({
+        source: "QUICKBOOKS",
+        company_name_raw: "TechCo GmbH",
+        amount_cents: 850000,
+        currency: "USD",
+        email: "ap@techco.de",
+      }),
+    });
+    const mockCreate = vi
+      .fn()
+      .mockResolvedValue(buildClaudeResponse([buggyResult]));
+    const client = { messages: { create: mockCreate } } as unknown as import(
+      "@anthropic-ai/sdk"
+    ).default;
+
+    const results = await analyzeBatch(buildBatch([fixture09Pair]), { client });
+
+    const types = results[0].conflicts.map((c) => c.conflict_type).sort();
+    expect(types).toEqual(["CURRENCY", "EMAIL"]);
+    expect(
+      results[0].conflicts.some((c) => c.conflict_type === "AMOUNT"),
+    ).toBe(false);
+    // The double-counted at-risk is gone with the dropped conflict.
+    const totalAtRisk = results[0].conflicts.reduce(
+      (sum, c) => sum + (c.amount_at_risk_cents ?? 0),
+      0,
+    );
+    expect(totalAtRisk).toBe(0);
+  });
+
+  it("preserves the AMOUNT conflict when amounts genuinely differ (no over-correction)", () => {
+    const out = dedupeCurrencyAmountConflict(buggyResult, 850000, 900000);
+    expect(out.conflicts.map((c) => c.conflict_type)).toContain("AMOUNT");
+    expect(out.conflicts).toHaveLength(3);
+  });
+
+  it("preserves the AMOUNT conflict when an amount is missing on one side", () => {
+    const out = dedupeCurrencyAmountConflict(buggyResult, 850000, null);
+    expect(out.conflicts.map((c) => c.conflict_type)).toContain("AMOUNT");
   });
 });
