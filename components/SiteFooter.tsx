@@ -10,7 +10,7 @@ const FOOTER_LINKS: { href: string; label: string }[] = [
 export default function SiteFooter() {
   return (
     <footer className="border-t border-hairline bg-bg mt-auto">
-      <div className="max-w-[1120px] mx-auto px-6 py-10 flex flex-col gap-4">
+      <div className="max-w-shell mx-auto px-6 lg:px-8 py-10 flex flex-col gap-4">
         <p className="text-[13px] text-fg-muted text-center md:text-left">
           Questions?{" "}
           <a

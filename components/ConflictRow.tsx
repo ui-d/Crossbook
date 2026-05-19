@@ -16,22 +16,32 @@ type Decision =
   | "MANUAL_REVIEW"
   | "IGNORE";
 
+// Neutral badge for low-signal types — visible edge, calm fill.
+const NEUTRAL_BADGE = "bg-bg-tint text-fg ring-1 ring-hairline";
+
 const PRIORITY_STYLES: Record<ReportConflict["priority"], string> = {
-  HIGH: "bg-error-container text-on-error-container",
-  MEDIUM: "bg-tertiary-container text-on-tertiary-container",
-  LOW: "bg-secondary-container text-on-surface-variant",
+  HIGH: "bg-danger-soft text-danger",
+  MEDIUM: "bg-warning-soft text-warning",
+  LOW: NEUTRAL_BADGE,
 };
 
 const TYPE_STYLES: Record<ReportConflict["conflict_type"], string> = {
-  AMOUNT: "bg-tertiary-container text-on-tertiary-container",
-  STATUS: "bg-secondary-container text-on-surface-variant",
-  MISSING: "bg-error-container text-on-error-container",
-  DUPLICATE: "bg-surface-container-high text-on-surface-variant",
-  DATE: "bg-secondary-container text-on-surface-variant",
-  CURRENCY: "bg-primary-fixed text-primary",
-  EMAIL: "bg-surface-container-high text-on-surface-variant",
-  NAME: "bg-surface-container-high text-on-surface-variant",
-  TAX_ID: "bg-tertiary-container text-on-tertiary-container",
+  AMOUNT: "bg-accent-soft text-accent",
+  STATUS: "bg-warning-soft text-warning",
+  MISSING: "bg-danger-soft text-danger",
+  DUPLICATE: NEUTRAL_BADGE,
+  DATE: NEUTRAL_BADGE,
+  CURRENCY: "bg-accent-soft text-accent",
+  EMAIL: NEUTRAL_BADGE,
+  NAME: NEUTRAL_BADGE,
+  TAX_ID: "bg-warning-soft text-warning",
+};
+
+// Priority-keyed left accent stripe — the primary row-separation device.
+const PRIORITY_STRIPE: Record<ReportConflict["priority"], string> = {
+  HIGH: "border-l-danger",
+  MEDIUM: "border-l-warning",
+  LOW: "border-l-hairline",
 };
 
 interface ConflictRowProps {
@@ -81,8 +91,8 @@ export function ConflictRow({
   return (
     <article
       className={cn(
-        "bg-surface-container-lowest border border-outline-variant rounded-xl shadow-ambient overflow-hidden transition-opacity",
-        decision !== null ? "opacity-70" : null,
+        "bg-surface-container-lowest border border-outline-variant border-l-4 rounded-xl shadow-card overflow-hidden transition-colors",
+        decision !== null ? "border-l-success" : PRIORITY_STRIPE[conflict.priority],
       )}
     >
       <header className="flex flex-wrap items-center gap-2 px-6 py-4 border-b border-outline-variant bg-surface-container-low">
@@ -102,6 +112,11 @@ export function ConflictRow({
         >
           {conflict.conflict_type}
         </span>
+        {decision !== null ? (
+          <span className="inline-flex items-center text-label-caps px-2 py-1 rounded bg-success-soft text-success">
+            Decided
+          </span>
+        ) : null}
         {conflict.amount_at_risk_cents !== null ? (
           <span className="text-data-mono text-on-surface font-semibold">
             {formatAmount(conflict.amount_at_risk_cents)} at risk
@@ -130,9 +145,9 @@ export function ConflictRow({
         </div>
 
         {(conflict.hubspot_value || conflict.quickbooks_value) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="bg-surface-container-low border border-outline-variant rounded-lg p-2">
-              <div className="text-label-caps text-on-surface-variant mb-1">HubSpot</div>
+              <div className="text-label-caps text-accent mb-1">HubSpot</div>
               <div className="font-mono text-[13px] text-on-surface break-all">{conflict.hubspot_value ?? "—"}</div>
             </div>
             <div className="bg-surface-container-low border border-outline-variant rounded-lg p-2">

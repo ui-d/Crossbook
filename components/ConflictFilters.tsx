@@ -72,7 +72,7 @@ export function ConflictFilters({
     <fieldset
       disabled={disabled}
       className={cn(
-        "rounded-xl border border-outline-variant bg-surface-container-low p-4 flex flex-col gap-4",
+        "rounded-xl border border-outline-variant bg-surface-container-low p-4 flex flex-col gap-4 shadow-card",
         disabled ? "opacity-60" : null,
       )}
     >

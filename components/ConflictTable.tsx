@@ -123,7 +123,7 @@ export function ConflictTable({
         saveBulk={saveBulk}
       />
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-5">
         {filtered.map((conflict, index) => {
           const isBlurred = !isPaid && index >= freeTierUnblurredLimit;
           return (
