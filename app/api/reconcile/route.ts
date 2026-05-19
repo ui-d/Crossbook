@@ -3,9 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 
-import { analyzePairs } from "@/lib/claude";
+import { analyzePairs, type AnalysisResult } from "@/lib/claude";
 import { findCandidatePairs } from "@/lib/conflict-scorer";
 import { validateEmailForFreeReport } from "@/lib/email-validation";
+import { isFeatureEnabled } from "@/lib/feature-flags";
 import {
   parseHubSpotCsv,
   parseQuickBooksCsv,
@@ -274,18 +275,42 @@ export async function POST(req: NextRequest): Promise<Response> {
       }
     }
 
-    const claudeResults =
-      process.env.ANTHROPIC_API_KEY
-        ? await analyzePairs(pairs, claudeSkipIndexes)
-        : [];
+    // DISABLE_AI_FALLBACK is the operational kill-switch: when on (or when the
+    // Claude call fails because Anthropic is rate-limited or down) we skip the
+    // AI layer and force every conflict to MANUAL_REVIEW, so no automated
+    // TRUST_* recommendation ever ships without an AI judgment behind it. The
+    // upload still succeeds — pattern + structural conflicts surface as usual.
+    const aiFallbackDisabled = isFeatureEnabled("DISABLE_AI_FALLBACK");
+    let claudeResults: AnalysisResult[] = [];
+    let aiDegraded = aiFallbackDisabled;
+    if (!aiFallbackDisabled && process.env.ANTHROPIC_API_KEY) {
+      try {
+        claudeResults = await analyzePairs(pairs, claudeSkipIndexes);
+      } catch (error) {
+        console.error(
+          "/api/reconcile Claude analysis failed; degrading to MANUAL_REVIEW",
+          error,
+        );
+        aiDegraded = true;
+      }
+    }
 
-    const report = buildReport({
+    const builtReport = buildReport({
       hubspot_records: hubspot,
       quickbooks_records: quickbooks,
       pairs,
       pattern_matches: patternResult.matches,
       claude_results: claudeResults,
     });
+    const report: BuiltReport = aiDegraded
+      ? {
+          ...builtReport,
+          conflicts: builtReport.conflicts.map((c) => ({
+            ...c,
+            recommended_action: "MANUAL_REVIEW" as const,
+          })),
+        }
+      : builtReport;
 
     const now = new Date();
     const filesPurgedAt = new Date(now);

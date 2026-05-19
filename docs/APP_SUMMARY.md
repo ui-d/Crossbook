@@ -53,6 +53,9 @@ CSV-in / plain-English-out **HubSpot ↔ QuickBooks reconciliation** for SMB Rev
 | Email | Resend 6.12 — wired into the digest cron + GDPR delete-confirm flow |
 | Analytics | **PostHog** (`posthog-js` 1.x) — initialized only when `NEXT_PUBLIC_POSTHOG_KEY` is set (graceful no-op otherwise). Identifies on Clerk `user_id`; never email or PII. Conversion events sampled at 100%, view events at 10%. `checkout_completed` is captured server-side from the Stripe webhook via `lib/analytics-server.ts` (direct `fetch` to PostHog `/capture/`). |
 | Cron | **Vercel cron (`vercel.json`)** — daily 14:00 UTC for `/api/cron/monthly-digest`, daily 03:00 UTC for `/api/cron/file-retention-sweep`. (Brief originally specified Supabase Edge Functions; Vercel cron chosen for proximity to the Next.js handlers and shared env-var scope.) |
+| Error tracking | **Sentry** (`@sentry/nextjs` 10.x) — server + edge, init only when `SENTRY_DSN` is set (full no-op otherwise); `/api` exceptions captured via `instrumentation.ts` `onRequestError`. No `withSentryConfig` wrapper (source-map upload deferred). |
+| Feature flags | `lib/feature-flags.ts` — env-driven `isFeatureEnabled()`. `DISABLE_AI_FALLBACK` forces all conflicts to `MANUAL_REVIEW` (manual kill-switch, or automatic when the Claude call throws). |
+| Health probe | `GET /api/healthcheck` — public, unauthenticated; 200 if Supabase + Stripe reachable, 503 otherwise. |
 | Testing | Vitest 4.1 + `@vitest/coverage-v8` (≥80% threshold scoped to `lib/`) |
 | Tooling | `tsx` for eval scripts + Resend smoke test, ESLint 9, `supabase` CLI |
 | Deployment target | Vercel |
@@ -74,6 +77,7 @@ app/
     export/[reportId]/route.ts     Corrected CSV export (decisions appended)
     privacy/delete-my-data/route.ts     GDPR Art. 17 — request deletion
     privacy/confirm-delete/route.ts     GDPR Art. 17 — email-confirm + cascade
+    healthcheck/route.ts           Public liveness probe (Supabase + Stripe)
   dashboard/page.tsx               Report history + delta trend (paid users)
   dpa/page.tsx                     Static DPA + TODO marker for Iubenda upgrade
   how-it-works/page.tsx            Marketing — pipeline + invariants
@@ -129,6 +133,8 @@ lib/
   privacy.ts                       Email-verified delete flow + cascade helpers
   csv-exporter.ts                  Corrected CSV (HubSpot + QBO + summary)
   decisions.ts                     saveDecisionAction server action
+  feature-flags.ts                 Env-driven flags (DISABLE_AI_FALLBACK)
+  email-validation.ts              Disposable-email gate for free reports
   payments.ts                      createCheckoutSession server action
   stripe.ts                        SDK init (test/live key auto-switch)
   supabase.ts                      Clerk-JWT third-party-auth client
@@ -152,9 +158,13 @@ scripts/
 docs/
   APP_SUMMARY.md                   This file
   iubenda-setup.md                 Day-of-first-enterprise-prospect playbook
+  INCIDENT_PLAYBOOK.md             Severity levels + rollback / webhook-replay runbooks
 
 NEXT_STEPS.md                      Operational launch checklist (DNS, Stripe, env)
 middleware.ts                      clerkMiddleware()
+instrumentation.ts                 Sentry register() + onRequestError (no-op w/o SENTRY_DSN)
+sentry.server.config.ts            Server Sentry init (loaded only when DSN set)
+sentry.edge.config.ts              Edge Sentry init (loaded only when DSN set)
 vercel.json                        Vercel cron schedule
 vitest.config.ts                   v8 coverage, 80% threshold, scoped to lib/
 .mcp.json                          Supabase + Context7 + GitHub MCP servers
@@ -254,6 +264,7 @@ Daily Vercel crons:
 | `GET /api/privacy/confirm-delete` | GDPR Art. 17 (cascade) | Token-verified. Cascades delete across reports / decisions / subscriptions / free_report_usage. Inserts audit row. |
 | `GET /api/cron/monthly-digest` | Vercel cron (CRON_SECRET) | Daily 14:00 UTC. Selects paid users with stale latest report, sends Resend digest, dedupes via `digest_sends`. |
 | `GET /api/cron/file-retention-sweep` | Vercel cron (CRON_SECRET) | Daily 03:00 UTC. Purges raw CSV text from `report_files` after 30 days. |
+| `GET /api/healthcheck` | public, no auth | Liveness/readiness probe. `200` when Supabase + Stripe reachable, `503` otherwise. Anthropic check is informational. Never spends tokens, never leaks secrets. UptimeRobot target. |
 | `GET /report/[id]` | server component | Reads `reports` + `conflict_decisions`, renders `SummaryCard` + `DeltaSection` (paid) + `ConflictTable`, paywall banner if `!is_paid`. |
 | `GET /upload` | server component | Drag-drop upload UI. |
 | `GET /dashboard` | server component | Report history + delta trend scaffold (paid users). |
@@ -362,6 +373,12 @@ CRON_SECRET                       # openssl rand -hex 32; required for /api/cron
 
 # App
 NEXT_PUBLIC_APP_URL               # https://crossbook.app
+
+# Observability — optional
+SENTRY_DSN                        # unset → Sentry is a full no-op
+
+# Operational kill-switch — optional
+DISABLE_AI_FALLBACK               # 1/true → skip Claude, all conflicts MANUAL_REVIEW
 
 # MCP-only (local dev)
 SUPABASE_ACCESS_TOKEN

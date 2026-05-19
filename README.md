@@ -121,6 +121,7 @@ app/
   (auth)/sign-in/[[...sign-in]]/   Clerk custom sign-in
   api/
     webhooks/stripe/route.ts       Subscription webhook (signature-verified)
+    healthcheck/route.ts           Public probe — 200/503 on Supabase + Stripe
   subscription/page.tsx            Clerk PricingTable
   upload/page.tsx                  Canonical CSV upload entry
   layout.tsx                       ClerkProvider wrapper
@@ -136,6 +137,7 @@ lib/
   normalizers.ts                   Field-level normalizers (pure)
   normalize-record.ts              Composes RawRecord + ColumnMap -> NormalizedRecord
   conflict-scorer.ts               Weighted fuzzy match + orphan detection
+  feature-flags.ts                 Env-driven flags (DISABLE_AI_FALLBACK kill-switch)
   test-utils/fixtures.ts           Fixture loader for tests
   utils.ts                         cn() helper
 data/
@@ -144,6 +146,8 @@ data/
 supabase/
   migrations/0001_init.sql         Schema + RLS
 middleware.ts                      clerkMiddleware()
+instrumentation.ts                 Sentry register()/onRequestError (no-op w/o SENTRY_DSN)
+docs/INCIDENT_PLAYBOOK.md          Severity levels + rollback / webhook-replay runbooks
 vitest.config.ts                   v8 coverage, 80% threshold, scoped to lib/
 ```
 
