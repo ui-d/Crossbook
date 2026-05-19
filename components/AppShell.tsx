@@ -64,7 +64,7 @@ export default function AppShell({ children, title, subtitle, actions }: AppShel
   const pathname = usePathname() ?? "/";
 
   return (
-    <div className="flex flex-1 w-full max-w-[1200px] mx-auto">
+    <div className="flex flex-1 w-full max-w-shell mx-auto">
       <aside className="hidden lg:flex flex-col w-60 shrink-0 border-r border-outline-variant bg-surface-container-low/40 px-4 py-6 gap-1">
         <nav className="flex flex-col gap-1">
           {PRIMARY_LINKS.map((link) => (
@@ -74,7 +74,7 @@ export default function AppShell({ children, title, subtitle, actions }: AppShel
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <main className="flex-1 px-6 py-8 flex flex-col gap-8">
+        <main className="flex-1 px-6 lg:px-8 py-8 flex flex-col gap-8">
           {(title || actions) && (
             <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>

@@ -74,6 +74,10 @@
   --font-serif: var(--font-instrument-serif), "Times New Roman", Georgia, serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
 
+  /* Layout — single source of truth for app shell width.
+     Tailwind v4 generates `max-w-shell` from the --container-* namespace. */
+  --container-shell: 1440px;
+
   /* Radii */
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -92,10 +96,10 @@
    ============================================================ */
 :root {
   --bg: #ffffff;
-  --bg-tint: #f6f6f4;
+  --bg-tint: #efefea;
   --fg: #0a0a0a;
-  --fg-muted: #6b6b6b;
-  --hairline: #ebebeb;
+  --fg-muted: #585858;
+  --hairline: #d8d8d4;
 
   --accent: #2563eb;
   --accent-soft: #eff4ff;

@@ -98,7 +98,7 @@ const Navbar = () => {
         scrolled ? "border-b border-hairline" : "border-b border-transparent",
       )}
     >
-      <div className="flex justify-between items-center w-full px-6 py-3 max-w-[1200px] mx-auto gap-4">
+      <div className="flex justify-between items-center w-full px-6 py-3 max-w-shell mx-auto gap-4">
         <div className="flex items-center gap-6">
           <Wordmark />
           {!minimal && (
