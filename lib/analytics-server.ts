@@ -23,8 +23,11 @@ export async function captureServerEvent<K extends ServerEventName>(
   input: CaptureInput<K>,
 ): Promise<void> {
   const apiKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+  // Server-side capture bypasses the Next.js /ingest reverse proxy (it's a
+  // browser-only concern). POSTHOG_SERVER_HOST lets ops point at a different
+  // region if needed; the EU host is the default.
   const apiHost =
-    process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com";
+    process.env.POSTHOG_SERVER_HOST ?? "https://eu.i.posthog.com";
   if (!apiKey) return;
   if (!input.distinct_id) return;
 
