@@ -12,3 +12,7 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
     dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   });
 }
+
+// Lets Sentry tie errors to the navigation that triggered them. Exported
+// unconditionally — it's a no-op when the SDK wasn't initialised.
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
