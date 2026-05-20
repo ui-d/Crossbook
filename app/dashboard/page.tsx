@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import AppShell from "@/components/AppShell";
+import { DashboardAnalytics } from "@/components/DashboardAnalytics";
 import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/seo";
 
@@ -118,6 +119,7 @@ export default async function DashboardPage({
       title="Dashboard"
       subtitle="Every reconciliation you've run. Click a row to reopen."
     >
+      <DashboardAnalytics reportCount={totalReports} />
       <section className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           label="Reports"

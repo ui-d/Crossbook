@@ -4,6 +4,7 @@ import { CheckCircle2 } from "lucide-react";
 
 import AppShell from "@/components/AppShell";
 import PlanCards from "@/components/PlanCards";
+import { SubscriptionAnalytics } from "@/components/SubscriptionAnalytics";
 import { createSupabaseClient } from "@/lib/supabase";
 import { buildMetadata } from "@/lib/seo";
 
@@ -54,6 +55,7 @@ export default async function SubscriptionPage() {
           : "Pick the plan that matches your reconciliation volume. Cancel anytime — your reports stay accessible until the end of the period."
       }
     >
+      <SubscriptionAnalytics />
       {isActive ? (
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-ambient flex flex-col gap-3 max-w-xl">
           <div className="flex items-center gap-2">

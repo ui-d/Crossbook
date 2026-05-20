@@ -7,7 +7,7 @@ import { ArrowRight, FileSpreadsheet, ShieldCheck, UploadCloud } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { bucketRowCount, track } from "@/lib/analytics";
+import { bucketFileSize, bucketRowCount, track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
@@ -93,6 +93,7 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
         ...s,
         fileErrors: { ...s.fileErrors, [slot]: formatError },
       }));
+      track("error_shown", { error_kind: "upload_validation" });
       return;
     }
 
@@ -105,6 +106,7 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
           [slot]: `${approxRowCount.toLocaleString()} rows detected. Max ${MAX_ROWS.toLocaleString()} per file on the free tier.`,
         },
       }));
+      track("error_shown", { error_kind: "upload_validation" });
       return;
     }
 
@@ -113,6 +115,10 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
       [slot]: { file, approxRowCount },
       fileErrors: { ...s.fileErrors, [slot]: undefined },
     }));
+    track("file_selected", {
+      side: slot,
+      size_bucket: bucketFileSize(file.size),
+    });
   }, []);
 
   const handleDrop = useCallback(
@@ -189,6 +195,7 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
               emailError: message,
               serverMessage: null,
             }));
+            track("error_shown", { error_kind: "upload_validation" });
             return;
           }
           setState((s) => ({
@@ -196,6 +203,7 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
             status: "error",
             serverMessage: message,
           }));
+          track("error_shown", { error_kind: "upload_server" });
           return;
         }
         track("upload_completed", {
@@ -223,6 +231,7 @@ export function UploadZone({ endpoint = "/api/reconcile" }: UploadZoneProps) {
           status: "error",
           serverMessage: message,
         }));
+        track("error_shown", { error_kind: "upload_server" });
       }
     },
     [endpoint, state.email, state.hubspot, state.quickbooks],
