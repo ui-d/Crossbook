@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { X } from "lucide-react";
 
+import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ReportConflict } from "@/lib/report-builder";
@@ -53,6 +54,7 @@ export function ConflictFilters({
     if (next.has(priority)) next.delete(priority);
     else next.add(priority);
     onChange({ ...state, priorities: next });
+    track("filter_applied", { filter_type: "priority" });
   };
 
   const toggleType = (type: ConflictTypeFilter) => {
@@ -60,6 +62,17 @@ export function ConflictFilters({
     if (next.has(type)) next.delete(type);
     else next.add(type);
     onChange({ ...state, conflictTypes: next });
+    track("filter_applied", { filter_type: "conflict_type" });
+  };
+
+  // Debounce company-query events so we don't spam one per keystroke.
+  const companyQueryDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onCompanyQueryChange = (value: string) => {
+    onChange({ ...state, companyQuery: value });
+    if (companyQueryDebounce.current) clearTimeout(companyQueryDebounce.current);
+    companyQueryDebounce.current = setTimeout(() => {
+      track("filter_applied", { filter_type: "company_query" });
+    }, 600);
   };
 
   const hasActive =
@@ -107,7 +120,10 @@ export function ConflictFilters({
               key={s}
               active={state.decisionStatus === s}
               disabled={disabled}
-              onClick={() => onChange({ ...state, decisionStatus: s })}
+              onClick={() => {
+                onChange({ ...state, decisionStatus: s });
+                track("filter_applied", { filter_type: "decision_status" });
+              }}
               label={s}
             />
           ))}
@@ -117,7 +133,7 @@ export function ConflictFilters({
           <Input
             value={state.companyQuery}
             disabled={disabled}
-            onChange={(e) => onChange({ ...state, companyQuery: e.target.value })}
+            onChange={(e) => onCompanyQueryChange(e.target.value)}
             placeholder="Filter by company name"
             className="h-9"
           />
@@ -128,7 +144,10 @@ export function ConflictFilters({
             variant="ghost"
             size="sm"
             disabled={disabled}
-            onClick={() => onChange(emptyFilters())}
+            onClick={() => {
+              onChange(emptyFilters());
+              track("filter_applied", { filter_type: "clear_all" });
+            }}
             className="ml-auto gap-1"
           >
             <X className="size-3.5" />

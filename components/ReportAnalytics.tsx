@@ -24,6 +24,11 @@ export function ReportAnalytics({ isPaid, conflictCount }: ReportAnalyticsProps)
       is_paid: isPaid,
       conflict_count_bucket: bucket,
     });
+    // Surface the paywall hit as its own event so the free→paid funnel in
+    // PostHog doesn't need to derive it from report_generated + is_paid=false.
+    if (!isPaid) {
+      track("paywall_viewed", { conflict_count_bucket: bucket });
+    }
   }, [isPaid, conflictCount]);
 
   return null;
