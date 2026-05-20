@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   images: {
@@ -31,4 +32,18 @@ const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
 };
 
-export default nextConfig;
+// withSentryConfig wires the webpack plugins that make `onRequestError` in
+// instrumentation.ts actually fire on Vercel. Without it the SDK still
+// initialises and manual Sentry.captureException() works, but unhandled
+// errors from route handlers / Server Components silently never reach Sentry.
+//
+// Source map upload is skipped until SENTRY_AUTH_TOKEN is set (build will
+// log a notice but still succeed); add the token later for readable stack
+// traces in production.
+export default withSentryConfig(nextConfig, {
+  org: "mm-code",
+  project: "javascript-nextjs",
+  silent: !process.env.CI,
+  sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
+  webpack: { reactComponentAnnotation: { enabled: false } },
+});
