@@ -94,8 +94,13 @@ const Navbar = () => {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 bg-bg/80 backdrop-blur-md transition-[border-color,box-shadow] duration-200",
-        scrolled ? "border-b border-hairline" : "border-b border-transparent",
+        "sticky top-0 z-50 backdrop-blur-md transition-[border-color,box-shadow,background-color] duration-200",
+        minimal
+          ? "bg-bg border-b border-hairline shadow-[0_1px_0_0_var(--hairline)]"
+          : cn(
+              "bg-bg/80",
+              scrolled ? "border-b border-hairline" : "border-b border-transparent",
+            ),
       )}
     >
       <div className="flex justify-between items-center w-full px-6 py-3 max-w-shell mx-auto gap-4">
