@@ -54,7 +54,11 @@ export function initAnalytics({ apiKey, apiHost }: InitOptions): PostHog | null 
   if (!apiKey) return null;
 
   posthog.init(apiKey, {
-    api_host: apiHost || "https://us.i.posthog.com",
+    // Browser events flow through the Next.js reverse proxy (see next.config.ts)
+    // so ad blockers don't kill them with ERR_BLOCKED_BY_CLIENT. `ui_host` keeps
+    // PostHog-generated dashboard links pointing at the real EU UI.
+    api_host: apiHost || "/ingest",
+    ui_host: "https://eu.posthog.com",
     // Avoid capturing PII from URLs or DOM
     autocapture: false,
     capture_pageview: false,
