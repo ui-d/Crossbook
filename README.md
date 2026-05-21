@@ -1,5 +1,7 @@
 # Crossbook
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 CSV-in / plain-English-out **HubSpot ↔ QuickBooks reconciliation** for SMB RevOps teams. Drop two CSV exports — Claude finds conflicts, duplicates, missing invoices, and amount mismatches, cites the exact row in both files, and never auto-merges. $49/month vs. HubSpot Data Hub Professional at $720/seat/month.
 
 > **Status:** Phase 1 complete (foundation + normalization). Phase 2 (AI layer) in progress. See [`CLAUDE.md`](./CLAUDE.md) for the full 21-day build brief, GO/NO-GO criteria, and product positioning.
@@ -196,6 +198,14 @@ Used during build to apply migrations, seed the pattern library, and create Stri
 
 ---
 
+## Contributing
+
+Crossbook is an open-source MVP — issues and pull requests welcome. There's no formal contributing guide yet; for substantive changes please open an issue first to align on direction. Run `pnpm test` and `pnpm lint` before opening a PR (the test suite is the contract).
+
+---
+
 ## License
 
-Private — no license granted.
+MIT — see [LICENSE](./LICENSE).
+
+Copyright © 2026 Dawid Nawrocki.

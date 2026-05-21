@@ -2,6 +2,17 @@
   "name": "crossbook",
   "version": "0.1.0",
   "private": true,
+  "description": "HubSpot ↔ QuickBooks CSV reconciliation with AI-powered conflict detection and source-row citations.",
+  "license": "MIT",
+  "author": "Dawid Nawrocki",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ui-d/hub-reco.git"
+  },
+  "homepage": "https://github.com/ui-d/hub-reco#readme",
+  "bugs": {
+    "url": "https://github.com/ui-d/hub-reco/issues"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
