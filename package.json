@@ -7,11 +7,11 @@
   "author": "Dawid Nawrocki",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ui-d/hub-reco.git"
+    "url": "https://github.com/ui-d/Crossbook.git"
   },
-  "homepage": "https://github.com/ui-d/hub-reco#readme",
+  "homepage": "https://github.com/ui-d/Crossbook#readme",
   "bugs": {
-    "url": "https://github.com/ui-d/hub-reco/issues"
+    "url": "https://github.com/ui-d/Crossbook/issues"
   },
   "scripts": {
     "dev": "next dev --turbopack",
